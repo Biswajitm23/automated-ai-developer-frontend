@@ -5,7 +5,7 @@
   min-width: 0;
   padding: var(--space-5);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
 }
@@ -40,10 +40,14 @@
 }
 
 /* StatCard */
+/* Pastel fill by tone, like the cards on bitpastel.com. The label and value
+   still say what the number means; the colour is only a supporting cue. */
 .stat {
   position: relative;
   gap: var(--space-1);
-  border-left: 4px solid var(--color-border-strong);
+  border-color: transparent;
+  background: var(--color-pastel-sky);
+  box-shadow: none;
 }
 
 .statLink {
@@ -65,6 +69,7 @@
 }
 
 .statValue {
+  font-family: var(--font-heading);
   font-size: var(--text-3xl);
   line-height: var(--leading-3xl);
   font-weight: var(--font-bold);
@@ -84,21 +89,21 @@
 }
 
 .tone-pending {
-  border-left-color: var(--status-pending-border);
+  background: var(--color-pastel-yellow);
 }
 
 .tone-approved,
 .tone-active {
-  border-left-color: var(--status-approved-border);
+  background: var(--color-pastel-mint);
 }
 
 .tone-rejected {
-  border-left-color: var(--status-rejected-border);
+  background: var(--color-pastel-coral);
 }
 
 .tone-cancelled,
 .tone-inactive {
-  border-left-color: var(--status-cancelled-border);
+  background: var(--color-pastel-grey);
 }
 
 /* DescriptionList */

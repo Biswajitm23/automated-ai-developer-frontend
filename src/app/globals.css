@@ -29,6 +29,7 @@ h1,
 h2,
 h3,
 h4 {
+  font-family: var(--font-heading);
   line-height: 1.25;
   font-weight: var(--font-semibold);
   overflow-wrap: anywhere;
@@ -47,12 +48,12 @@ ol[role="list"] {
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--color-link);
   text-underline-offset: 3px;
 }
 
 a:hover {
-  color: var(--color-primary-hover);
+  color: var(--color-link-hover);
 }
 
 button,

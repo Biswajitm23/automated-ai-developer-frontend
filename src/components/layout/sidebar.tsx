@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/icons";
 import type { Role } from "@/lib/auth";
 import { AccountMenu } from "./account-menu";
+import { BrandLogo } from "./brand-logo";
 import { NAV_ITEMS, type NavItem } from "./nav-config";
 import styles from "./app-shell.module.css";
 
@@ -20,10 +21,7 @@ export function Sidebar({ role, onNavigate }: SidebarProps) {
   return (
     <div className={styles.sidebarInner}>
       <Link href="/dashboard" className={styles.brand} onClick={onNavigate}>
-        <span className={styles.brandMark} aria-hidden="true">
-          ELM
-        </span>
-        <span>Leave Management</span>
+        <BrandLogo layout="stacked" />
       </Link>
       <nav aria-label="Main" className={styles.nav}>
         <ul role="list" className={styles.navList}>

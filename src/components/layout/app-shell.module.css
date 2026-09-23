@@ -53,7 +53,7 @@
 }
 
 .topbarBrand:hover {
-  color: var(--color-primary);
+  color: var(--color-link);
 }
 
 /* Desktop sidebar (≥1024 px) */
@@ -88,21 +88,7 @@
 }
 
 .brand:hover {
-  color: var(--color-primary);
-}
-
-.brandMark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  flex-shrink: 0;
-  border-radius: var(--radius-lg);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  font-size: var(--text-xs);
-  letter-spacing: 0.05em;
+  color: var(--color-text);
 }
 
 .nav {
@@ -122,7 +108,7 @@
   gap: var(--space-3);
   min-height: var(--control-height);
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   color: var(--color-text-muted);
   font-weight: var(--font-medium);
   text-decoration: none;
@@ -135,19 +121,19 @@
 
 .navLink[aria-current="page"] {
   background: var(--color-primary-subtle);
-  color: var(--color-primary-hover);
+  color: var(--color-primary-text);
   font-weight: var(--font-semibold);
 }
 
 .navLink[aria-current="page"]::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: var(--space-2);
-  bottom: var(--space-2);
+  left: var(--space-1);
+  top: var(--space-3);
+  bottom: var(--space-3);
   width: 3px;
   border-radius: var(--radius-full);
-  background: var(--color-primary);
+  background: var(--color-brand);
 }
 
 /* Account block */

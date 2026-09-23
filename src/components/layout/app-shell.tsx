@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useRef, useState, type ReactNode } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "./brand-logo";
 import { MobileNav } from "./mobile-nav";
 import { MockBanner } from "./mock-banner";
 import { Sidebar } from "./sidebar";
@@ -54,7 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               Menu
             </Button>
             <Link href="/dashboard" className={styles.topbarBrand}>
-              Leave Management
+              <BrandLogo size="sm" />
             </Link>
           </header>
           <MobileNav

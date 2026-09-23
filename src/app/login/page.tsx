@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import LoginForm from "./login-form";
 import styles from "./login.module.css";
 
@@ -12,10 +13,7 @@ export default function LoginPage() {
     <main className={styles.page}>
       <div className={styles.container}>
         <div className={styles.brand}>
-          <span className={styles.brandMark} aria-hidden="true">
-            ELM
-          </span>
-          <span className={styles.brandName}>Employee Leave Management</span>
+          <BrandLogo product="Employee Leave Management" />
         </div>
         <section className={styles.card} aria-labelledby="login-title">
           <div className={styles.intro}>

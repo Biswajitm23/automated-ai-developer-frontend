@@ -10,57 +10,74 @@
 :root {
   color-scheme: light;
 
+  /*
+   * Colours follow the Bitpastel website (bitpastel.com): charcoal text, green
+   * actions, and soft mint, yellow, coral and sky pastels. The exact brand green
+   * (#00a974) is too light for white or body-size text (3.0:1), so buttons and
+   * links use darker shades of it and the brand green is kept for accents.
+   */
+
   /* Colours: surfaces and text */
-  --color-bg: #f8fafc;
+  --color-bg: #f6f8f7;
   --color-surface: #ffffff;
-  --color-surface-muted: #f1f5f9;
-  --color-text: #0f172a;
-  --color-text-muted: #475569;
-  --color-text-subtle: #64748b;
-  --color-border: #e2e8f0;
-  --color-border-strong: #cbd5e1;
-  --color-border-input: #7c8799;
+  --color-surface-muted: #eef3f1;
+  --color-text: #2a2a2a;
+  --color-text-muted: #4f5552;
+  --color-text-subtle: #5c6360;
+  --color-border: #e3e8e6;
+  --color-border-strong: #c9d2ce;
+  --color-border-input: #7d8683;
 
   /* Colours: brand and focus */
-  --color-primary: #4f46e5;
-  --color-primary-hover: #4338ca;
-  --color-primary-subtle: #eef2ff;
-  --color-primary-subtle-strong: #e0e7ff;
-  --color-primary-text: #3730a3;
+  --color-brand: #00a974;
+  --color-primary: #00875c;
+  --color-primary-hover: #00704d;
+  --color-primary-subtle: #dcf6eb;
+  --color-primary-subtle-strong: #b9ecd6;
+  --color-primary-text: #00664a;
   --color-on-primary: #ffffff;
-  --color-focus: #4f46e5;
+  --color-link: #00704d;
+  --color-link-hover: #005a3e;
+  --color-focus: #22577a;
+
+  /* Pastel surfaces (StatCard tones, icon circles) */
+  --color-pastel-mint: #dcf6eb;
+  --color-pastel-yellow: #fcf4d7;
+  --color-pastel-coral: #fde3e5;
+  --color-pastel-sky: #e3f4f9;
+  --color-pastel-grey: #f0f0f0;
 
   /* Colours: feedback */
-  --color-danger: #b91c1c;
-  --color-danger-hover: #991b1b;
-  --color-danger-subtle: #fef2f2;
-  --color-success: #15803d;
-  --color-success-subtle: #f0fdf4;
-  --color-warning: #b45309;
-  --color-warning-subtle: #fffbeb;
-  --color-info: #1d4ed8;
-  --color-info-subtle: #eff6ff;
-  --color-backdrop: rgb(15 23 42 / 0.5);
+  --color-danger: #b42330;
+  --color-danger-hover: #961c27;
+  --color-danger-subtle: #fde3e5;
+  --color-success: #00664a;
+  --color-success-subtle: #d8f5e9;
+  --color-warning: #7a5000;
+  --color-warning-subtle: #fcf4d7;
+  --color-info: #22577a;
+  --color-info-subtle: #e3f4f9;
+  --color-backdrop: rgb(42 42 42 / 0.5);
 
   /* Status badges (icon + text + border, never colour alone) */
-  --status-pending-fg: #92400e;
-  --status-pending-bg: #fef3c7;
-  --status-pending-border: #f59e0b;
-  --status-approved-fg: #166534;
-  --status-approved-bg: #dcfce7;
-  --status-approved-border: #22c55e;
-  --status-rejected-fg: #991b1b;
-  --status-rejected-bg: #fee2e2;
-  --status-rejected-border: #ef4444;
-  --status-cancelled-fg: #334155;
-  --status-cancelled-bg: #f1f5f9;
-  --status-cancelled-border: #94a3b8;
-  --status-active-fg: #166534;
-  --status-active-bg: #dcfce7;
-  --status-active-border: #22c55e;
-  --status-inactive-fg: #334155;
-  --status-inactive-bg: #f1f5f9;
-  --status-inactive-border: #94a3b8;
+  --status-pending-fg: #7a5000;
+  --status-pending-bg: #fcf4d7;
+  --status-pending-border: #d9a900;
+  --status-approved-fg: #00664a;
+  --status-approved-bg: #d8f5e9;
+  --status-approved-border: #00a974;
+  --status-rejected-fg: #a61e2b;
+  --status-rejected-bg: #fde3e5;
+  --status-rejected-border: #e0505c;
+  --status-cancelled-fg: #3b3b3c;
+  --status-cancelled-bg: #f0f0f0;
+  --status-cancelled-border: #8c8c8c;
+  --status-active-fg: #00664a;
+  --status-active-bg: #d8f5e9;
+  --status-active-border: #00a974;
+  --status-inactive-fg: #3b3b3c;
+  --status-inactive-bg: #f0f0f0;
+  --status-inactive-border: #8c8c8c;
 
   /* Legacy aliases (page.module.css and anything not yet migrated) */
   --background: var(--color-bg);
@@ -71,7 +88,9 @@
   --error: var(--color-danger);
 
   /* Typography */
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* --font-roboto and --font-source-sans are set by next/font in app/layout.tsx */
+  --font-sans: var(--font-roboto), Roboto, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-heading: var(--font-source-sans), "Source Sans Pro", var(--font-sans);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --text-xs: 0.75rem;
@@ -109,15 +128,15 @@
 
   /* Radii */
   --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
   --radius-full: 999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
-  --shadow-md: 0 4px 12px rgb(15 23 42 / 0.08), 0 1px 3px rgb(15 23 42 / 0.06);
-  --shadow-lg: 0 20px 40px rgb(15 23 42 / 0.18), 0 4px 12px rgb(15 23 42 / 0.08);
+  --shadow-sm: 0 1px 2px rgb(42 42 42 / 0.06);
+  --shadow-md: 0 4px 12px rgb(42 42 42 / 0.08), 0 1px 3px rgb(42 42 42 / 0.06);
+  --shadow-lg: 0 20px 40px rgb(42 42 42 / 0.18), 0 4px 12px rgb(42 42 42 / 0.08);
 
   /* Layout */
   --control-height: 2.75rem;

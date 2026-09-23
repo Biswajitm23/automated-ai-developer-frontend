@@ -270,50 +270,62 @@ written as literals in CSS.
 
 ### 3.1 Colours
 
-The palette is slate neutrals with an indigo primary. Contrast ratios were
-calculated with the WCAG 2.x formula. AA requires 4.5:1 for body text,
-3:1 for large text, and 3:1 for UI component boundaries and focus indicators.
+The palette follows the Bitpastel company website (https://www.bitpastel.com/),
+as the owner asked on 2026-09-23: charcoal text on white and light neutral
+backgrounds, green actions, and the site's soft mint, yellow, coral and sky
+pastels. Contrast ratios were calculated with the WCAG 2.x formula. AA requires
+4.5:1 for body text, 3:1 for large text, and 3:1 for UI component boundaries
+and focus indicators.
+
+The site's exact brand green, `#00A974`, has only 3.0:1 contrast with white
+text, so it is not used behind button labels or as link text. Buttons use a
+slightly deeper shade (`#00875C`, 4.55:1) and links a deeper one again
+(`#00704D`); the brand green itself marks the active nav item, status borders
+and other accents.
 
 | Token | Hex | Use | Contrast |
 |---|---|---|---|
-| `--color-bg` | `#F8FAFC` | Page background | — |
+| `--color-bg` | `#F6F8F7` | Page background | — |
 | `--color-surface` | `#FFFFFF` | Cards, tables, sidebar, dialogs, inputs | — |
-| `--color-surface-muted` | `#F1F5F9` | Table header, hover rows, skeleton base | — |
-| `--color-text` | `#0F172A` | Body text, headings | 17.9:1 on white, 17.1:1 on bg |
-| `--color-text-muted` | `#475569` | Secondary text, labels in `<dl>` | 7.6:1 on white, 7.2:1 on bg |
-| `--color-text-subtle` | `#64748B` | Hints, captions, placeholder (≥14 px) | 4.8:1 on white, 4.55:1 on bg. **Not** on `surface-muted` (4.3:1) |
-| `--color-border` | `#E2E8F0` | Decorative dividers, card outlines | Decorative only (1.2:1) |
-| `--color-border-strong` | `#CBD5E1` | Table row separators | Decorative only |
-| `--color-border-input` | `#7C8799` | Input, select, textarea and secondary button borders | 3.6:1 on white (meets 1.4.11) |
-| `--color-primary` | `#4F46E5` | Primary buttons, links, active nav marker, focus ring | 6.3:1 white text on it. 6.3:1 as text on white |
-| `--color-primary-hover` | `#4338CA` | Primary hover/active | 7.9:1 with white |
-| `--color-primary-subtle` | `#EEF2FF` | Active nav item background, selected chips | `#4338CA` text on it: 7.1:1 |
-| `--color-primary-subtle-strong` | `#E0E7FF` | Avatar background | `#3730A3` text: 8.1:1 |
-| `--color-primary-text` | `#3730A3` | Text on primary-subtle | 8.1:1 |
+| `--color-surface-muted` | `#EEF3F1` | Table header, hover rows, skeleton base | — |
+| `--color-text` | `#2A2A2A` | Body text, headings (the site's text colour) | 14.4:1 on white, 13.5:1 on bg |
+| `--color-text-muted` | `#4F5552` | Secondary text, labels in `<dl>` | 7.2:1 on bg, ≥6.3:1 on every pastel |
+| `--color-text-subtle` | `#5C6360` | Hints, captions, placeholder | 5.8:1 on bg, 5.5:1 on `surface-muted` |
+| `--color-border` | `#E3E8E6` | Decorative dividers, card outlines | Decorative only |
+| `--color-border-strong` | `#C9D2CE` | Table row separators | Decorative only |
+| `--color-border-input` | `#7D8683` | Input, select, textarea and secondary button borders | 3.7:1 on white (meets 1.4.11) |
+| `--color-brand` | `#00A974` | Bitpastel green: active nav bar, accents (never text) | Decorative |
+| `--color-primary` | `#00875C` | Primary buttons, selected pagination, working-day preview accent | 4.55:1 white text on it |
+| `--color-primary-hover` | `#00704D` | Primary hover/active | 6.1:1 with white |
+| `--color-primary-subtle` | `#DCF6EB` | Active nav item background, avatar, role badge (site mint) | `#00664A` text on it: 6.1:1 |
+| `--color-primary-subtle-strong` | `#B9ECD6` | Role badge border | — |
+| `--color-primary-text` | `#00664A` | Text on primary-subtle | 6.1:1 |
 | `--color-on-primary` | `#FFFFFF` | Text on primary | — |
-| `--color-focus` | `#4F46E5` | 2 px focus outline, 2 px offset | 6.3:1 against white/bg (≥3:1) |
-| `--color-danger` | `#B91C1C` | Danger button background, error text, invalid borders | White on it: 6.5:1. On `#FEF2F2`: 5.9:1 |
-| `--color-danger-hover` | `#991B1B` | Danger hover | 8.3:1 |
-| `--color-danger-subtle` | `#FEF2F2` | Error alert background | — |
-| `--color-success` | `#15803D` | Success text/icons | 5.0:1 white, 4.8:1 on `#F0FDF4` |
-| `--color-success-subtle` | `#F0FDF4` | Success alert background | — |
-| `--color-warning` | `#B45309` | Warning text/icons | 4.8:1 on `#FFFBEB` |
-| `--color-warning-subtle` | `#FFFBEB` | Warning alert background | — |
-| `--color-info` | `#1D4ED8` | Info text/icons | 6.2:1 on `#EFF6FF` |
-| `--color-info-subtle` | `#EFF6FF` | Info alert and "not available yet" background | — |
-| `--color-backdrop` | `rgb(15 23 42 / 0.5)` | Dialog and drawer backdrop | — |
+| `--color-link` / `-hover` | `#00704D` / `#005A3E` | Links and breadcrumb hover | 6.1:1 on white, 5.7:1 on bg |
+| `--color-focus` | `#22577A` | 2 px focus outline, 2 px offset (the site's navy) | 7.7:1 against white |
+| `--color-pastel-mint/-yellow/-coral/-sky/-grey` | `#DCF6EB` `#FCF4D7` `#FDE3E5` `#E3F4F9` `#F0F0F0` | StatCard fills by tone, as on the site's cards | Text on them ≥6.3:1 |
+| `--color-danger` | `#B42330` | Danger button background, error text, invalid borders | White on it: 6.5:1. On `#FDE3E5`: 5.4:1 |
+| `--color-danger-hover` | `#961C27` | Danger hover | — |
+| `--color-danger-subtle` | `#FDE3E5` | Error alert background | — |
+| `--color-success` | `#00664A` | Success text/icons | 6.1:1 on `#D8F5E9` |
+| `--color-success-subtle` | `#D8F5E9` | Success alert background | — |
+| `--color-warning` | `#7A5000` | Warning text/icons | 6.4:1 on `#FCF4D7` |
+| `--color-warning-subtle` | `#FCF4D7` | Warning alert background | — |
+| `--color-info` | `#22577A` | Info text/icons | 6.9:1 on `#E3F4F9` |
+| `--color-info-subtle` | `#E3F4F9` | Info alert, mock banner and "not available yet" background | — |
+| `--color-backdrop` | `rgb(42 42 42 / 0.5)` | Dialog and drawer backdrop | — |
 
 **Status badges** (always icon + text label, and a 1 px border so the shape
 does not depend on colour):
 
 | Status | Text | Background | Border | Icon | Contrast |
 |---|---|---|---|---|---|
-| Pending | `#92400E` | `#FEF3C7` | `#F59E0B` | clock | 6.4:1 |
-| Approved | `#166534` | `#DCFCE7` | `#22C55E` | check | 6.5:1 |
-| Rejected | `#991B1B` | `#FEE2E2` | `#EF4444` | x-circle | 6.8:1 |
-| Cancelled | `#334155` | `#F1F5F9` | `#94A3B8` | slash-circle | 9.5:1 |
-| Active (employee) | `#166534` | `#DCFCE7` | `#22C55E` | dot | 6.5:1 |
-| Inactive (employee) | `#334155` | `#F1F5F9` | `#94A3B8` | dot (hollow) | 9.5:1 |
+| Pending | `#7A5000` | `#FCF4D7` | `#D9A900` | clock | 6.4:1 |
+| Approved | `#00664A` | `#D8F5E9` | `#00A974` | check | 6.1:1 |
+| Rejected | `#A61E2B` | `#FDE3E5` | `#E0505C` | x-circle | 6.1:1 |
+| Cancelled | `#3B3B3C` | `#F0F0F0` | `#8C8C8C` | slash-circle | 9.8:1 |
+| Active (employee) | `#00664A` | `#D8F5E9` | `#00A974` | dot | 6.1:1 |
+| Inactive (employee) | `#3B3B3C` | `#F0F0F0` | `#8C8C8C` | dot (hollow) | 9.8:1 |
 
 Tokens: `--status-pending-fg/bg/border`, `--status-approved-*`,
 `--status-rejected-*`, `--status-cancelled-*`, `--status-active-*`, `--status-inactive-*`.
@@ -325,9 +337,15 @@ Tokens: `--status-pending-fg/bg/border`, `--status-approved-*`,
 
 ### 3.2 Typography
 
-Font stack: `--font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`
-and `--font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`.
-There is no web font, so builds need no network and there is no layout shift.
+The website's fonts: **Roboto** (400, 500, 700) for body text and controls,
+and **Source Sans 3** (600, 700; the current name of Source Sans Pro) for
+headings, the product name and stat values. Both are loaded with `next/font/google`
+in `src/app/layout.tsx`, which self-hosts them: `next build` downloads them
+once, and browsers never contact Google. The loader sets `--font-roboto` and
+`--font-source-sans` on `<html>`; the tokens are
+`--font-sans: var(--font-roboto), Roboto, system-ui, …` and
+`--font-heading: var(--font-source-sans), "Source Sans Pro", var(--font-sans)`.
+`--font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`.
 Numbers in tables and stat cards use `font-variant-numeric: tabular-nums`.
 
 | Token | Size | Line height | Use |
@@ -353,14 +371,14 @@ Heading order: one `h1` per page (in `PageHeader`), `h2` for cards/sections, `h3
   --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem;
 
   --radius-sm: 4px;   /* badges' inner elements, checkboxes */
-  --radius-md: 6px;   /* inputs, buttons */
-  --radius-lg: 8px;   /* cards, alerts, table wrapper */
-  --radius-xl: 12px;  /* dialogs, drawer */
-  --radius-full: 999px; /* badges, avatar */
+  --radius-md: 8px;   /* inputs */
+  --radius-lg: 12px;  /* alerts, table wrapper, toasts */
+  --radius-xl: 20px;  /* cards, dialogs, drawer (the site's card radius) */
+  --radius-full: 999px; /* buttons and nav links (pill, as on the site), badges, avatar */
 
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
-  --shadow-md: 0 4px 12px rgb(15 23 42 / 0.08), 0 1px 3px rgb(15 23 42 / 0.06);
-  --shadow-lg: 0 20px 40px rgb(15 23 42 / 0.18), 0 4px 12px rgb(15 23 42 / 0.08);
+  --shadow-sm: 0 1px 2px rgb(42 42 42 / 0.06);
+  --shadow-md: 0 4px 12px rgb(42 42 42 / 0.08), 0 1px 3px rgb(42 42 42 / 0.06);
+  --shadow-lg: 0 20px 40px rgb(42 42 42 / 0.18), 0 4px 12px rgb(42 42 42 / 0.08);
 
   --control-height: 2.75rem;      /* 44 px touch target (buttons, inputs, nav links) */
   --control-height-sm: 2.25rem;   /* compact buttons inside tables (keeps 44 px hit area via padding on mobile) */
@@ -409,7 +427,7 @@ component must fit.
 ```
 ≥1024 px                                         <1024 px
 ┌───────────┬──────────────────────────────┐     ┌──────────────────────────┐
-│ ELM brand │ [MockBanner, dev only]       │     │ ☰ Menu  Leave Mgmt       │ top bar (sticky)
+│ Bitpastel │ [MockBanner, dev only]       │     │ ☰ Menu  Leave Mgmt       │ top bar (sticky)
 │           │ PageHeader  h1 + actions     │     ├──────────────────────────┤
 │ Nav       │                              │     │ [MockBanner]             │
 │  • ...    │ content (max 1200 px)        │     │ PageHeader               │
@@ -442,7 +460,13 @@ Navigation items (`src/components/layout/nav-config.ts`):
 | ADMIN | Allowances | `/admin/allowances` | prefix |
 
 The active item gets `aria-current="page"`, a `--color-primary-subtle`
-background and a 3 px left indigo bar, so it is not shown by colour alone.
+background and a 3 px left bar in the brand green, so it is not shown by colour
+alone. Nav links are pill-shaped.
+
+Brand: `BrandLogo` (`src/components/layout/brand-logo.tsx`) shows the Bitpastel
+logo (`public/brand/bitpastel-logo.svg`, from bitpastel.com) and the product
+name. The sidebar stacks the name under the logo; the mobile top bar and the
+login page show them side by side with a thin divider.
 
 ### 4.2 Components
 
@@ -456,7 +480,7 @@ exports. Props are TypeScript shapes.
 | Component | Props | Behaviour |
 |---|---|---|
 | `AppShell` | `{ children }` | Reads `useAuth()` (always authenticated here). Renders skip link, `MockBanner`, desktop `Sidebar` or mobile top bar and `MobileNav`, and `<main id="main-content">`. Chooses desktop or mobile with `useMediaQuery("(min-width: 1024px)")` (`useSyncExternalStore`, server snapshot `false`), so **only one** copy of the nav and `AccountMenu` exists in the DOM (unique test IDs) |
-| `Sidebar` | `{ role: Role; onNavigate?: () => void }` | Brand link (`/dashboard`), `<nav aria-label="Main">` list of `NavLink`s, `AccountMenu` pinned to the bottom. Static at ≥1024 px |
+| `Sidebar` | `{ role: Role; onNavigate?: () => void }` | Brand link (`/dashboard`, `BrandLogo` stacked), `<nav aria-label="Main">` list of `NavLink`s, `AccountMenu` pinned to the bottom. Static at ≥1024 px |
 | `MobileNav` | `{ open: boolean; onClose: () => void; returnFocusRef: RefObject<HTMLButtonElement> }` | Left drawer built on `Dialog` (`variant="drawer"`), with `aria-label="Main menu"`. Contains `Sidebar` content. It closes on Esc, backdrop click, the close button, and route change (`usePathname` effect). Focus returns to the **Menu** button (`data-testid="mobile-menu-button"`, `aria-expanded`, `aria-controls`) |
 | `AccountMenu` | `{}` | Always-visible account block (not a hidden popover, so **Log out** stays one click away): avatar with initials (`aria-hidden`), `displayName(user)` (`data-testid="header-user"`), username and email in muted text, role badge (`data-testid="header-role"`), and a **Log out** `Button` (`data-testid="logout-button"`, "Signing out…" while pending). It keeps the SiteHeader error messages in an `Alert` with `role="alert"` |
 | `MockBanner` | `{}` | Renders only when `MOCK_API_ENABLED`: an info bar, "Development data: some screens use the mock API (NEXT_PUBLIC_USE_MOCK_API=true).", `data-testid="mock-banner"`. It tells screenshot viewers that the data is fictional |
@@ -466,7 +490,7 @@ exports. Props are TypeScript shapes.
 
 | Component | Props | Behaviour |
 |---|---|---|
-| `Button` | `ButtonHTMLAttributes & { variant?: "primary" \| "secondary" \| "ghost" \| "danger"; size?: "md" \| "sm"; loading?: boolean; loadingText?: string; fullWidth?: boolean; iconStart?: IconName }` | 44 px high (`sm` is 36 px, with the hit area padded to 44 px on touch). `loading` sets `disabled` and `aria-busy` and shows a spinner and `loadingText`. The label never disappears. Default `type="button"`. The primary variant is indigo, secondary is white with an input border, and danger is red |
+| `Button` | `ButtonHTMLAttributes & { variant?: "primary" \| "secondary" \| "ghost" \| "danger"; size?: "md" \| "sm"; loading?: boolean; loadingText?: string; fullWidth?: boolean; iconStart?: IconName }` | 44 px high (`sm` is 36 px, with the hit area padded to 44 px on touch). `loading` sets `disabled` and `aria-busy` and shows a spinner and `loadingText`. The label never disappears. Default `type="button"`. Pill-shaped, like the site's buttons. The primary variant is green, secondary is white with an input border, and danger is red |
 | `ButtonLink` | `LinkProps & { variant; size }` | A `next/link` styled as a button, for navigation (for example "Apply for leave") |
 | `IconButton` | `{ label: string; icon: IconName; ... }` | Square 44 px. `label` goes to `aria-label` and a tooltip-free visually-hidden text. Used for Menu, dialog close and toast dismiss |
 | `Icon` | `{ name: IconName; size?: 16 \| 20 \| 24 }` | Inline SVG set (about 20 paths in `icons.tsx`), always `aria-hidden="true" focusable="false"` |
@@ -497,7 +521,7 @@ exports. Props are TypeScript shapes.
 | Component | Props | Behaviour |
 |---|---|---|
 | `Card` | `{ title?: string; headingLevel?: 2 \| 3; actions?: ReactNode; children; padding?: "md" \| "lg" }` | White surface, 1 px border, `--radius-lg`, `--shadow-sm`. When it has a title it renders `<section aria-labelledby>` |
-| `StatCard` | `{ label: string; value: number \| string; unit?: string; href?: string; tone?: StatusTone \| "neutral"; description?: string; testId?: string }` | Large tabular number with a label above. With `href` the whole card is one link (the accessible name is "{label}: {value}"). The tone gives only a left accent bar. The label carries the meaning |
+| `StatCard` | `{ label: string; value: number \| string; unit?: string; href?: string; tone?: StatusTone \| "neutral"; description?: string; testId?: string }` | Large tabular number with a label above. With `href` the whole card is one link (the accessible name is "{label}: {value}"). The tone sets only a pastel fill (yellow, mint, coral, grey; sky when neutral). The label carries the meaning |
 | `BalanceCard` | `{ balance: Balance; leaveTypeName: string }` | Shows the leave type name and "{available} days available". Below, a `<dl>` with Allowance, Approved (used), Pending (reserved), Available, plus a stacked progress bar (approved / pending / available segments with a text legend; the bar is `aria-hidden` because the `<dl>` holds the data). If `allowance === 0`: "No allowance set for {year}. Contact your administrator." `data-testid="balance-card-{code}"` |
 | `StatusBadge` | `{ status: RequestStatus } \| { active: boolean }` | Pill with icon and **text label** ("Pending", "Approved", "Rejected", "Cancelled" / "Active", "Inactive"). `data-testid="status-badge"`, `data-status={status}` |
 | `ResponsiveTable<T>` | `{ caption: string; captionHidden?: boolean; columns: { key: string; header: string; cell: (row: T) => ReactNode; align?: "start" \| "end"; hideOnMobile?: boolean; primary?: boolean }[]; rows: T[]; rowKey: (row: T) => string \| number; loading?: boolean; empty?: ReactNode; testId?: string }` | ≥768 px: semantic `<table>` in a card, `<caption>` (can be visually hidden), `<th scope="col">`, zebra hover, numeric columns right-aligned. **<768 px:** the same DOM, but CSS turns each `<tr>` into a card (`display:block`). Each `<td>` shows its column header through `data-label` + `::before`, the `primary` column becomes the card title, and `hideOnMobile` columns are dropped. The wrapper uses `overflow-x:auto` only as a safety net. The first cell holds the row's link (e.g. "View" or "Review" with a visually-hidden "request #123"), so rows are **not** click handlers |

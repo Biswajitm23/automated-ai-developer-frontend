@@ -1,3 +1,4 @@
+/* Pill-shaped, like the buttons on bitpastel.com. */
 .button {
   position: relative;
   display: inline-flex;
@@ -7,9 +8,9 @@
   min-height: var(--control-height);
   padding: var(--space-2) var(--space-4);
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   font-size: var(--text-base);
-  font-weight: var(--font-semibold);
+  font-weight: var(--font-medium);
   line-height: var(--leading-base);
   text-align: center;
   text-decoration: none;
