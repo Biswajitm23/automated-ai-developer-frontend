@@ -79,14 +79,6 @@
   --status-inactive-bg: #f0f0f0;
   --status-inactive-border: #8c8c8c;
 
-  /* Legacy aliases (page.module.css and anything not yet migrated) */
-  --background: var(--color-bg);
-  --foreground: var(--color-text);
-  --muted: var(--color-text-muted);
-  --border: var(--color-border-input);
-  --ok: var(--color-success);
-  --error: var(--color-danger);
-
   /* Typography */
   /* --font-roboto and --font-source-sans are set by next/font in app/layout.tsx */
   --font-sans: var(--font-roboto), Roboto, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;

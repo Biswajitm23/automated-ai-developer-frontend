@@ -81,7 +81,7 @@ Legend for states: **L** loading skeleton, **E** empty, **F** no filter results,
 | 15 | All leave requests | `/admin/requests` | Admin | ELM-009 | `FilterBar` (employee, status, type, from, to), `StatusCounts`, `AdminRequestTable`, `Pagination` | L, E, F, X, NA |
 | 16 | Request review | `/admin/requests/[id]` | Admin | ELM-007 | `RequestSummary`, employee `Card`, `BalanceImpact`, **Approve**/**Reject** buttons, `DecisionSummary` | L, X, NA, 404, already-decided (buttons hidden, decision shown) |
 | 17 | Decision confirmation | dialog on `/admin/requests/[id]` | Admin | ELM-007 | `DecisionDialog` (remarks `Textarea`, required for reject) | V (remarks required, max length), S, X (409 already processed / insufficient balance), OK |
-| – | Home (dev scaffold) | `/` | Public | ELM-001/002 | existing `BackendStatus`, `HomeAuthLink` (restyled only) | unchanged |
+| – | Home | `/` | Public | ELM-002 | Redirects to `/login` (owner feedback, 2026-09-23); the login form sends signed-in users on to `/dashboard` | – |
 
 ### 1.2 Traceability: card requirement → page
 
@@ -175,7 +175,7 @@ src/app/
 
 | Route | Access | Page | Notes |
 |---|---|---|---|
-| `/` | Public | Dev scaffold | Unchanged behaviour (`backend-status`, `home-auth-link`) |
+| `/` | Public | Redirect | `redirect("/login")`. The backend health panel was removed at the owner's request |
 | `/login` | Public | Login | `?next=` goes through `safeNextPath()` (unchanged). Default after login is still `/dashboard` |
 | `/dashboard` | Signed-in | **Role router** | EMPLOYEE: employee dashboard. ADMIN: `router.replace("/admin")` while showing "Opening the admin dashboard…" (`role="status"`) |
 | `/leave` | EMPLOYEE | Leave history | Query: `year`, `status`, `page` |
@@ -258,7 +258,7 @@ Route rules (checked against `node_modules/next/dist/docs/01-app/03-api-referenc
 | `src/app/auth.module.css` | Deleted at the end of Phase A, once nothing imports it (login and home link move to UI components) |
 | `src/components/require-auth.tsx` | Kept. Its states use `Skeleton`/`Alert`/`Button`. `AccessDenied` moves to `components/states/access-denied.tsx` and is **re-exported** from `require-auth.tsx`, so existing imports keep working |
 | `src/components/auth-provider.tsx`, `src/lib/api.ts`, `src/lib/auth.ts` | **Unchanged** |
-| `src/app/page.tsx`, `backend-status.tsx`, `page.module.css` | Unchanged logic. The legacy variable names (`--border`, `--muted`, `--ok`, `--error`, `--foreground`, `--background`) stay as aliases in `tokens.css`, so they still render |
+| `src/app/page.tsx` | Now only redirects to `/login`. `backend-status.tsx`, `page.module.css` and `home-auth-link.tsx` were removed (ELM-002 owner feedback), and with them the legacy token aliases |
 
 ---
 
@@ -329,11 +329,6 @@ does not depend on colour):
 
 Tokens: `--status-pending-fg/bg/border`, `--status-approved-*`,
 `--status-rejected-*`, `--status-cancelled-*`, `--status-active-*`, `--status-inactive-*`.
-
-**Legacy aliases** (for `page.module.css` and anything not yet migrated):
-`--background: var(--color-bg)`, `--foreground: var(--color-text)`,
-`--muted: var(--color-text-muted)`, `--border: var(--color-border-input)`,
-`--ok: var(--color-success)`, `--error: var(--color-danger)`.
 
 ### 3.2 Typography
 
@@ -1217,7 +1212,6 @@ src/app/(protected)/layout.tsx        RequireAuth > ToastProvider > AppShell
 src/components/require-auth.tsx       states use Skeleton/Alert/Button; re-export AccessDenied from states/
 src/app/login/page.tsx                centred Card with brand; same Suspense
 src/app/login/login-form.tsx          TextField/Button/Alert; logic, messages and test IDs unchanged
-src/components/home-auth-link.tsx     ButtonLink instead of auth.module.css
 src/app/(protected)/dashboard/dashboard-summary.tsx   interim restyle (Card, PageHeader with current-user/current-role)
 src/app/(protected)/admin/admin-panel.tsx             interim restyle (Card, Alert); texts and test ID unchanged
 next.config.ts                        warn when NEXT_PUBLIC_USE_MOCK_API=true in a production build
