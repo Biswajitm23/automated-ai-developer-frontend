@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AccessDenied } from "@/components/states/access-denied";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { ApiError, NETWORK_ERROR_MESSAGE } from "@/lib/api";
 import { pingAdmin } from "@/lib/services/admin-access";
 
@@ -15,11 +14,16 @@ type PingState =
   | { kind: "signed-out" }
   | { kind: "error"; message: string };
 
+const CHECK_FAILED_MESSAGE = "We couldn't confirm your administrator access. Please try again.";
+
 /**
  * The ELM-002 server-side administrator check (GET /api/admin/ping/, always
- * the real API). Same state machine, texts and test ID as the former
- * admin-panel.tsx, without the page heading. The UI role check alone is not
- * authoritative; the server answers 403 for anyone who is not an admin.
+ * the real API). The UI role check alone is not authoritative; the server
+ * answers 403 for anyone who is not an admin, which shows Access denied.
+ *
+ * It runs silently: nothing is shown while checking or once confirmed, only a
+ * plain message if the check fails (the owner asked for no technical status
+ * messages, 2026-09-23).
  */
 export function AdminAccessCheck() {
   const [state, setState] = useState<PingState>({ kind: "loading" });
@@ -38,7 +42,7 @@ export function AdminAccessCheck() {
       setState(
         data?.status === "ok"
           ? { kind: "confirmed" }
-          : { kind: "error", message: "The server gave an unexpected answer." },
+          : { kind: "error", message: CHECK_FAILED_MESSAGE },
       );
     } catch (error) {
       if (controller.signal.aborted) return;
@@ -51,9 +55,7 @@ export function AdminAccessCheck() {
         setState({
           kind: "error",
           message:
-            error instanceof ApiError && !error.isNetworkError
-              ? `Could not confirm administrator access (error ${error.status}).`
-              : NETWORK_ERROR_MESSAGE,
+            error instanceof ApiError && !error.isNetworkError ? CHECK_FAILED_MESSAGE : NETWORK_ERROR_MESSAGE,
         });
       }
     }
@@ -67,36 +69,19 @@ export function AdminAccessCheck() {
   }, [ping]);
 
   if (state.kind === "forbidden") return <AccessDenied />;
+  if (state.kind !== "error") return null;
 
   return (
-    <Card title="Administrator access" aria-live="polite" data-testid="admin-access-check">
-      {state.kind === "loading" && (
-        <Alert variant="info" live={false}>
-          <span data-testid="admin-ping-status">Checking administrator access with the server…</span>
-        </Alert>
-      )}
-      {state.kind === "confirmed" && (
-        <Alert variant="success" live={false}>
-          <span data-testid="admin-ping-status">Administrator access confirmed by the server.</span>
-        </Alert>
-      )}
-      {state.kind === "signed-out" && (
-        <Alert variant="info" live={false}>
-          <span data-testid="admin-ping-status">Your session has ended. Redirecting to sign in…</span>
-        </Alert>
-      )}
-      {state.kind === "error" && (
-        <Alert
-          variant="error"
-          action={
-            <Button variant="secondary" iconStart="refresh" onClick={() => void ping()}>
-              Try again
-            </Button>
-          }
-        >
-          <span data-testid="admin-ping-status">{state.message}</span>
-        </Alert>
-      )}
-    </Card>
+    <Alert
+      variant="error"
+      data-testid="admin-access-check"
+      action={
+        <Button variant="secondary" iconStart="refresh" onClick={() => void ping()}>
+          Try again
+        </Button>
+      }
+    >
+      <span data-testid="admin-ping-status">{state.message}</span>
+    </Alert>
   );
 }

@@ -51,7 +51,7 @@ export function BalanceImpact({ balance, request, leaveTypeName }: BalanceImpact
         <Alert variant="warning" data-testid="balance-impact-warning">
           {balance.allowance === 0
             ? `No ${leaveTypeName} allowance is set for ${year}. Approving will fail; set an allowance first.`
-            : `Approved and pending days (${balance.approved + balance.pending}) are more than the allowance (${balance.allowance}). The server will refuse an approval that exceeds the allowance.`}
+            : `Approved and pending days (${balance.approved + balance.pending}) are more than the allowance (${balance.allowance}). Approving would go over the allowance, so it will not be accepted.`}
         </Alert>
       )}
 

@@ -123,7 +123,7 @@ function balanceText({
 }): string {
   if (!leaveTypeName) return "Choose a leave type to see your balance after this request.";
   if (balanceState === "loading" || balanceState === "idle") return `Checking your ${leaveTypeName} balance…`;
-  if (!balance) return `Your ${leaveTypeName} balance couldn't be loaded. The server checks it when you submit.`;
+  if (!balance) return `Your ${leaveTypeName} balance couldn't be loaded. It will be checked when you submit.`;
   const after = balance.available - workingDays;
   return `${leaveTypeName} after this request: ${after} of ${balance.allowance} ${balance.allowance === 1 ? "day" : "days"} available`;
 }

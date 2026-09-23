@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatDateRange, formatDays } from "@/lib/format";
 import { approveRequest, rejectRequest } from "@/lib/services/admin-requests";
 import {
+  NOT_AVAILABLE_ACTION_MESSAGE,
   NotAvailableError,
   firstFieldErrors,
   isConflict,
@@ -122,7 +123,7 @@ export function DecisionDialog({
         return;
       }
       if (error instanceof NotAvailableError) {
-        setFormError(`${error.feature} isn't available yet (${error.card}).`);
+        setFormError(NOT_AVAILABLE_ACTION_MESSAGE);
         setFocusSeq((seq) => seq + 1);
         return;
       }

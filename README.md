@@ -101,7 +101,9 @@ are sent straight back to the login page.
 
 Most leave-management endpoints are not in the backend yet. Each group of
 endpoints has an availability flag in `src/lib/services/availability.ts`.
-While a flag is `false`, pages show **"… isn't available yet"**. For design and
+While a flag is `false`, pages show a plain **"Nothing to show yet"** and
+actions say **"This can't be done right now. Please try again later."** (no
+technical wording, at the owner's request). For design and
 development you can serve those endpoints from an in-browser mock instead:
 
 ```bash
@@ -151,7 +153,7 @@ employee you can deactivate (Django admin, untick **Active**).
 | Invalid credentials show a clear error | Submit a wrong password; submit the form empty | "Invalid username or password." alert, password cleared; empty fields show "Enter your username." / "Enter your password." without a request |
 | Logout ends access to protected resources | Click **Log out**, then open `/dashboard` and press Back | Sent to `/login`; `/dashboard` redirects to `/login?next=%2Fdashboard`; `GET /api/auth/me/` returns 401 |
 | Employees cannot access admin APIs or pages | As the employee, open `/admin` | "Access denied" panel, no admin links in the navigation; `GET /api/admin/ping/` returns 403 |
-| Admin access (control) | As the admin, open `/admin` | "Administrator access confirmed by the server." |
+| Admin access (control) | As the admin, open `/admin` | The admin dashboard loads. The server check runs silently: no message when it passes, "Access denied" on a 403, and a plain error with **Try again** if it fails |
 | Inactive accounts cannot access protected resources | Deactivate a signed-in employee, then reload or refocus the tab; try signing in again | Sent to `/login`; sign-in shows the same generic error |
 | Safe redirects | Open `/login?next=//evil.example` and sign in | Lands on `/dashboard` |
 | No public registration | Look for a sign-up link; open `/register` | No link; 404 |

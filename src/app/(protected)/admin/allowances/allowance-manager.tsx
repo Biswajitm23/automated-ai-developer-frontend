@@ -166,7 +166,7 @@ function AllowancePanel({ employeeId, employee, year, leaveTypes }: PanelProps) 
       <EmptyState
         icon="inbox"
         title="No leave types"
-        description="The server returned no leave types to set allowances for."
+        description="No leave types have been set up yet."
         action={
           <Button variant="secondary" iconStart="refresh" onClick={state.reload}>
             Try again

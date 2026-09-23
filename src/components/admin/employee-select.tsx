@@ -58,7 +58,7 @@ export function EmployeeSelect({
   let statusError = error;
   if (employees.status === "loading" && list.length === 0) statusHint = "Loading employees…";
   else if (employees.status === "error") statusError = error ?? "Could not load the employee list.";
-  else if (employees.status === "not-available") statusHint = `${employees.feature} isn't available yet.`;
+  else if (employees.status === "not-available") statusHint = "No employees to show yet.";
 
   return (
     <Select

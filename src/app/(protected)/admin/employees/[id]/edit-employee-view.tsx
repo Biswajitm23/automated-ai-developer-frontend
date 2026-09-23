@@ -21,7 +21,12 @@ import {
   updateEmployee,
 } from "@/lib/services/admin-employees";
 import { listAdminRequests } from "@/lib/services/admin-requests";
-import { NotAvailableError, isNotFound, submitErrorMessage } from "@/lib/services/errors";
+import {
+  NOT_AVAILABLE_ACTION_MESSAGE,
+  NotAvailableError,
+  isNotFound,
+  submitErrorMessage,
+} from "@/lib/services/errors";
 import type { Employee } from "@/lib/services/types";
 import { useAsync } from "@/lib/use-async";
 import styles from "../../admin.module.css";
@@ -147,7 +152,7 @@ function EditEmployee({ id }: { id: string }) {
       togglingRef.current = false;
       setToggling(false);
       if (error instanceof NotAvailableError) {
-        setToggleError(`${error.feature} isn't available yet (${error.card}).`);
+        setToggleError(NOT_AVAILABLE_ACTION_MESSAGE);
       } else if (isNotFound(error)) {
         setToggleError("This employee could not be found any more. Go back to the employee list.");
       } else {

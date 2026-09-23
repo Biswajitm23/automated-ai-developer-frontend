@@ -37,7 +37,9 @@ Contents
   differ.
 - **Every data view has five states:** loading (skeleton), empty, success,
   error (with **Try again**), and *not available yet* (the endpoint does not
-  exist and mock mode is off). Forms also have validation, submitting (disabled
+  exist and mock mode is off). The last one is shown to users only as a plain
+  "Nothing to show yet": the owner asked (2026-09-23) for no messages about the
+  server, releases or card numbers. Forms also have validation, submitting (disabled
   controls) and success states.
 - **No UI library.** The work uses CSS Modules and CSS custom properties with
   React 19 and native platform features: `<dialog>` for modals,
@@ -240,7 +242,7 @@ Route rules (checked against `node_modules/next/dist/docs/01-app/03-api-referenc
 | After explicit logout → `/login` (then later visits use `?next=`) | `AuthProvider.logout()` unchanged. `AccountMenu` calls it and keeps the ELM-002 error messages |
 | `safeNextPath` checks (`//evil`, `/\host`, control characters, `/login` loop) | `src/lib/auth.ts` unchanged. `DEFAULT_AFTER_LOGIN` stays `/dashboard` |
 | Employee opening `/admin` (and now `/admin/**`) sees "Access denied" (`data-testid="access-denied"`) | `admin/layout.tsx` → `RequireRole`. The same `AccessDenied` component and test ID. Its link "Back to dashboard" still goes to `/dashboard` |
-| Admin sees "Administrator access confirmed by the server." (`data-testid="admin-ping-status"`) | `AdminAccessCheck` on `/admin` (the admin dashboard) calls `GET /api/admin/ping/` and keeps the exact texts. A 403 from ping renders `AccessDenied` |
+| Server-side admin check | `AdminAccessCheck` on `/admin` (the admin dashboard) calls `GET /api/admin/ping/`. It shows nothing while checking or when confirmed (owner request, 2026-09-23: no technical status messages). A 403 renders `AccessDenied`; any other failure shows "We couldn't confirm your administrator access. Please try again." (`data-testid="admin-ping-status"`) with **Try again** |
 | `data-testid` `logout-button`, `header-user`, `header-role` | Rendered once in `AccountMenu`. On desktop it is always visible in the sidebar footer. On mobile (<1024 px) it is inside the menu drawer, so open **Menu** (`data-testid="mobile-menu-button"`) first |
 | `current-user`, `current-role` | Rendered in the `PageHeader` subtitle of both dashboards: "Signed in as `<username>` · `<role badge>`" |
 | Login test IDs and messages (`login-form`, `login-error`, empty-field, 400/403/429/network texts) | `login-form.tsx` logic unchanged. Only markup and styling move to UI components |
@@ -312,7 +314,7 @@ and other accents.
 | `--color-warning` | `#7A5000` | Warning text/icons | 6.4:1 on `#FCF4D7` |
 | `--color-warning-subtle` | `#FCF4D7` | Warning alert background | — |
 | `--color-info` | `#22577A` | Info text/icons | 6.9:1 on `#E3F4F9` |
-| `--color-info-subtle` | `#E3F4F9` | Info alert, mock banner and "not available yet" background | — |
+| `--color-info-subtle` | `#E3F4F9` | Info alert and mock banner background | — |
 | `--color-backdrop` | `rgb(42 42 42 / 0.5)` | Dialog and drawer backdrop | — |
 
 **Status badges** (always icon + text label, and a 1 px border so the shape
@@ -506,8 +508,8 @@ exports. Props are TypeScript shapes.
 | `Skeleton` | `{ variant: "text" \| "rect" \| "circle"; width?; height?; lines?: number }` | Grey blocks with a shimmer (off under reduced motion), all `aria-hidden`. The parent container has `aria-busy="true"` and one visually-hidden `role="status"` "Loading …" |
 | `PageSkeleton` / `TableSkeleton` / `CardGridSkeleton` | `{ rows?: number; columns?: number }` | Pre-built skeletons whose sizes match the final layout (no layout shift) |
 | `EmptyState` | `{ icon?: IconName; title: string; description?: ReactNode; action?: ReactNode; tone?: "neutral" \| "info" \| "danger" }` | Centred block in a card. The title is an `h2` or `h3` (a `headingLevel` prop) |
-| `LoadError` | `{ error: unknown; onRetry: () => void; what: string }` | Maps an error to a message: network → `NETWORK_ERROR_MESSAGE`; 5xx → "Could not load {what} (error 500)."; `NotAvailableError` → renders `NotAvailableState` instead. Includes a **Try again** button |
-| `NotAvailableState` | `{ feature: string; card?: string }` | `EmptyState` tone info: "{Feature} isn't available yet. The server doesn't provide this yet ({card}). It will appear here once the backend is released." `data-testid="not-available"` |
+| `LoadError` | `{ error: unknown; onRetry: () => void; what: string }` | Maps an error to a message: network → `NETWORK_ERROR_MESSAGE`; 5xx → "Could not load {what}. Please try again." (status codes are never shown; `data-status` keeps it for tests); `NotAvailableError` → renders `NotAvailableState` instead. Includes a **Try again** button |
+| `NotAvailableState` | `{ feature: string; card?: string }` | Neutral `EmptyState`: "Nothing to show yet", no description. `feature` and `card` go only into `data-feature`/`data-card` for tests, never into visible text. `data-testid="not-available"`. Actions that hit a missing endpoint show `NOT_AVAILABLE_ACTION_MESSAGE`: "This can't be done right now. Please try again later." |
 | `AccessDenied` | `{}` | `EmptyState` tone danger, lock icon, `h2` "Access denied", "You do not have permission to view this page.", **Back to dashboard** link. `role="alert"`, `data-testid="access-denied"` (unchanged) |
 | `NotFoundPanel` | `{ what: string; backHref: string; backLabel: string }` | In-shell 404 (`data-testid="not-found"`) |
 
@@ -769,7 +771,7 @@ with `router.replace(pathname + "?" + qs, { scroll: false })`.
 | 404 without JSON / 501 | `NotAvailableState` |
 | 409 `{detail}` | `Alert` (warning) with the server text + **Reload** |
 | 429 | "Too many requests. Wait a minute and try again." |
-| 5xx | "Something went wrong on the server (error 500). Try again." |
+| 5xx | "Something went wrong. Please try again." |
 
 ### 5.4 Mock layer
 
@@ -1229,7 +1231,7 @@ Phase A checks (in addition to the common ones):
   Tab stays inside.
 - `/does-not-exist` shows the not-found card.
 - Employee on `/admin` gets `access-denied`.
-- Admin on `/admin` sees "Administrator access confirmed by the server."
+- Admin on `/admin` sees the dashboard with no access message (the server check passed silently).
 - Logout → `/login`, then `/dashboard` → `/login?next=%2Fdashboard`.
 - `/login?next=//evil.example` → `/dashboard`.
 - A temporary dev check in the console: `todayInAppZone` and the §7 reference

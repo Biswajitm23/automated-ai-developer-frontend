@@ -28,7 +28,7 @@ function messageFor(error: unknown): string {
   if (error.status === 403) {
     return "Your sign-in request was rejected for security reasons. Reload the page and try again.";
   }
-  return `Sign-in failed (error ${error.status}). Try again.`;
+  return "Sign-in failed. Please try again.";
 }
 
 export default function LoginForm() {

@@ -4,7 +4,13 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { TextField } from "@/components/ui/text-field";
-import { CHECK_FIELDS_MESSAGE, NotAvailableError, firstFieldErrors, submitErrorMessage } from "@/lib/services/errors";
+import {
+  CHECK_FIELDS_MESSAGE,
+  NOT_AVAILABLE_ACTION_MESSAGE,
+  NotAvailableError,
+  firstFieldErrors,
+  submitErrorMessage,
+} from "@/lib/services/errors";
 import styles from "./employee-form.module.css";
 
 export type EmployeeFormValues = {
@@ -193,7 +199,7 @@ export function EmployeeForm({
       // Never keep a password around after a failed attempt.
       setValues((current) => (current.password ? { ...current, password: "" } : current));
       if (error instanceof NotAvailableError) {
-        setFormError(`${error.feature} isn't available yet (${error.card}). Try again once the backend is released.`);
+        setFormError(NOT_AVAILABLE_ACTION_MESSAGE);
         requestFocus(alertId);
         return;
       }

@@ -13,6 +13,9 @@ export class NotAvailableError extends Error {
   }
 }
 
+/** Shown when an action's endpoint is not built yet. No technical detail (owner request). */
+export const NOT_AVAILABLE_ACTION_MESSAGE = "This can't be done right now. Please try again later.";
+
 export const CSRF_REJECTED_MESSAGE =
   "Your request was rejected for security reasons. Reload the page and try again.";
 export const TOO_MANY_REQUESTS_MESSAGE = "Too many requests. Wait a minute and try again.";
@@ -51,8 +54,8 @@ export function loadErrorMessage(error: unknown, what: string): string {
   if (!(error instanceof ApiError)) return `Could not load ${what}. Try again.`;
   if (error.isNetworkError) return NETWORK_ERROR_MESSAGE;
   if (error.status === 429) return TOO_MANY_REQUESTS_MESSAGE;
-  if (error.status >= 500) return `Could not load ${what} (error ${error.status}).`;
-  return error.detail ?? `Could not load ${what} (error ${error.status}).`;
+  if (error.status >= 500) return `Could not load ${what}. Please try again.`;
+  return error.detail ?? `Could not load ${what}. Please try again.`;
 }
 
 /**
@@ -64,12 +67,12 @@ export function submitErrorMessage(error: unknown): string {
   if (error.isNetworkError) return NETWORK_ERROR_MESSAGE;
   if (isCsrfFailure(error)) return CSRF_REJECTED_MESSAGE;
   if (error.status === 429) return TOO_MANY_REQUESTS_MESSAGE;
-  if (error.status >= 500) return `Something went wrong on the server (error ${error.status}). Try again.`;
+  if (error.status >= 500) return "Something went wrong. Please try again.";
   if (error.status === 400) {
     if (error.detail) return error.detail;
     if (Object.keys(error.fieldErrors).length > 0) return CHECK_FIELDS_MESSAGE;
   }
-  return error.detail ?? `The request failed (error ${error.status}). Try again.`;
+  return error.detail ?? "Something went wrong. Please try again.";
 }
 
 /** First message per field, for forms: `{ start_date: "Start date cannot be in the past." }`. */

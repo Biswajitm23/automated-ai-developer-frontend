@@ -8,7 +8,13 @@ import { useToast } from "@/components/ui/toast";
 import { ApiError } from "@/lib/api";
 import { formatDateTime, formatDays, leaveTypeName } from "@/lib/format";
 import { setAllowance } from "@/lib/services/admin-allowances";
-import { NotAvailableError, firstFieldErrors, isNotFound, submitErrorMessage } from "@/lib/services/errors";
+import {
+  NOT_AVAILABLE_ACTION_MESSAGE,
+  NotAvailableError,
+  firstFieldErrors,
+  isNotFound,
+  submitErrorMessage,
+} from "@/lib/services/errors";
 import { LEAVE_TYPE_CODES, type Allowance, type LeaveType } from "@/lib/services/types";
 import styles from "./allowance-table.module.css";
 
@@ -167,7 +173,7 @@ function AllowanceRow({ row, typeName, employeeId, year, onSaved, onStale }: Row
     } catch (caught) {
       let message: string;
       if (caught instanceof NotAvailableError) {
-        message = `${caught.feature} isn't available yet (${caught.card}).`;
+        message = NOT_AVAILABLE_ACTION_MESSAGE;
       } else if (isNotFound(caught)) {
         message = "This employee or leave type could not be found any more. Reload the page.";
       } else {

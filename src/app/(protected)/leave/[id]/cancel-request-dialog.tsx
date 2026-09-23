@@ -3,7 +3,13 @@
 import { useRef, useState } from "react";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { formatDateRange, formatDays } from "@/lib/format";
-import { NotAvailableError, isConflict, isNotFound, submitErrorMessage } from "@/lib/services/errors";
+import {
+  NOT_AVAILABLE_ACTION_MESSAGE,
+  NotAvailableError,
+  isConflict,
+  isNotFound,
+  submitErrorMessage,
+} from "@/lib/services/errors";
 import { cancelLeaveRequest } from "@/lib/services/leave-requests";
 import type { LeaveRequest } from "@/lib/services/types";
 
@@ -63,7 +69,7 @@ export function CancelRequestDialog({
         return;
       }
       if (caught instanceof NotAvailableError) {
-        setError(`${caught.feature} isn't available yet (${caught.card}).`);
+        setError(NOT_AVAILABLE_ACTION_MESSAGE);
         return;
       }
       setError(submitErrorMessage(caught));

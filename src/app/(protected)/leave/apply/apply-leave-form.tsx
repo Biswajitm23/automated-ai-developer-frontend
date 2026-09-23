@@ -19,6 +19,7 @@ import { ENDPOINTS } from "@/lib/services/availability";
 import { getMyBalances } from "@/lib/services/balances";
 import {
   CHECK_FIELDS_MESSAGE,
+  NOT_AVAILABLE_ACTION_MESSAGE,
   NotAvailableError,
   firstFieldErrors,
   submitErrorMessage,
@@ -174,7 +175,7 @@ function ApplyLeaveFormBody() {
           let messages: string[] = [];
           if (!result.valid) messages = Object.values(result.errors).flat();
           else if (String(result.working_days) !== clientDays) {
-            messages = [`The server counts ${formatDays(result.working_days)} for these dates.`];
+            messages = [`These dates count as ${formatDays(result.working_days)}.`];
           }
           setServerCheck({ key: previewKey, messages });
         },
@@ -255,7 +256,7 @@ function ApplyLeaveFormBody() {
       setSubmitting(false);
       if (error instanceof NotAvailableError) {
         setFormError({
-          message: `${error.feature} isn't available yet (${error.card}). Try again once the backend is released.`,
+          message: NOT_AVAILABLE_ACTION_MESSAGE,
         });
         requestFocus(FORM_ALERT_ID);
         return;
