@@ -1,14 +1,9 @@
-import HomeAuthLink from "@/components/home-auth-link";
-import BackendStatus from "./backend-status";
-import styles from "./page.module.css";
+import { redirect } from "next/navigation";
 
+/**
+ * The site opens on the sign-in page. Signed-in users are sent on from there
+ * to their dashboard by the login form.
+ */
 export default function Home() {
-  return (
-    <main className={styles.main}>
-      <h1>Employee Leave Management</h1>
-      <p className={styles.muted}>Development scaffold</p>
-      <HomeAuthLink />
-      <BackendStatus />
-    </main>
-  );
+  redirect("/login");
 }

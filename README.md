@@ -30,8 +30,8 @@ Set `NEXT_PUBLIC_API_BASE_URL` in `.env.local` to the backend's base URL
 npm run dev      # http://localhost:3000
 ```
 
-Start the backend first. The home page calls the backend health endpoint and
-should show **"Connected — API and database are healthy."**
+Start the backend first. To check it is healthy, open
+`http://localhost:8000/api/health/`; it returns `{"status": "ok", ...}`.
 
 Open the frontend at `http://localhost:3000` and keep `NEXT_PUBLIC_API_BASE_URL`
 on the same hostname (`http://localhost:8000`). See
@@ -41,7 +41,7 @@ on the same hostname (`http://localhost:8000`). See
 
 | Route | Access | Purpose |
 |---|---|---|
-| `/` | Public | Backend health check, plus a **Sign in** / **Go to dashboard** link |
+| `/` | Public | Redirects to `/login`; signed-in users continue from there to `/dashboard` |
 | `/login` | Public | Sign-in form. Accepts `?next=/some/path` (same-site paths only) |
 | `/dashboard` | Signed-in users | Shows the signed-in user and their role |
 | `/admin` | Role `ADMIN` | Confirms administrator access with `GET /api/admin/ping/`. Employees see "Access denied" |
@@ -123,10 +123,10 @@ npm run build
 
 ## Troubleshooting
 
-- **"Could not reach the backend"** — the backend is not running, or
-  `NEXT_PUBLIC_API_BASE_URL` is wrong.
-- **"Backend responded, but is unhealthy"** — the backend is up but cannot reach
-  PostgreSQL. Check `docker compose ps` in the backend repository.
+- **Sign-in shows a network error** — the backend is not running, or
+  `NEXT_PUBLIC_API_BASE_URL` is wrong. `http://localhost:8000/api/health/`
+  reports whether the API can reach PostgreSQL (check `docker compose ps` in
+  the backend repository if it cannot).
 - **CORS error in the browser console** — add this origin to
   `CORS_ALLOWED_ORIGINS` in the backend's `.env`.
 - **Sign-in "works" but you land on the login page again, or you are always
