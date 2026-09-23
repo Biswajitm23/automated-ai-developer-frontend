@@ -5,7 +5,10 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { ApiError, NETWORK_ERROR_MESSAGE } from "@/lib/api";
 import { safeNextPath } from "@/lib/auth";
-import styles from "../auth.module.css";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { TextField } from "@/components/ui/text-field";
+import styles from "./login.module.css";
 
 type FieldName = "username" | "password";
 type FieldErrors = Partial<Record<FieldName, string>>;
@@ -112,65 +115,45 @@ export default function LoginForm() {
       aria-busy={pending}
       data-testid="login-form"
     >
-      <div aria-live="assertive" aria-atomic="true">
+      <div className={styles.alertRegion} aria-live="assertive" aria-atomic="true">
         {formError && (
-          <p className={styles.alert} role="alert" data-testid="login-error">
+          <Alert variant="error" data-testid="login-error">
             {formError}
-          </p>
+          </Alert>
         )}
       </div>
 
-      <div className={styles.field}>
-        <label htmlFor="username">Username</label>
-        <input
-          ref={usernameRef}
-          id="username"
-          name="username"
-          type="text"
-          autoComplete="username"
-          autoCapitalize="none"
-          spellCheck={false}
-          required
-          aria-required="true"
-          aria-invalid={fieldErrors.username ? true : undefined}
-          aria-describedby={fieldErrors.username ? "username-error" : undefined}
-          value={username}
-          onChange={(event) => setUsername(event.target.value)}
-          className={styles.input}
-        />
-        {fieldErrors.username && (
-          <p id="username-error" className={styles.fieldError}>
-            {fieldErrors.username}
-          </p>
-        )}
-      </div>
+      <TextField
+        ref={usernameRef}
+        id="username"
+        name="username"
+        label="Username"
+        type="text"
+        autoComplete="username"
+        autoCapitalize="none"
+        spellCheck={false}
+        required
+        error={fieldErrors.username}
+        value={username}
+        onChange={(event) => setUsername(event.target.value)}
+      />
 
-      <div className={styles.field}>
-        <label htmlFor="password">Password</label>
-        <input
-          ref={passwordRef}
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          aria-required="true"
-          aria-invalid={fieldErrors.password ? true : undefined}
-          aria-describedby={fieldErrors.password ? "password-error" : undefined}
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className={styles.input}
-        />
-        {fieldErrors.password && (
-          <p id="password-error" className={styles.fieldError}>
-            {fieldErrors.password}
-          </p>
-        )}
-      </div>
+      <TextField
+        ref={passwordRef}
+        id="password"
+        name="password"
+        label="Password"
+        type="password"
+        autoComplete="current-password"
+        required
+        error={fieldErrors.password}
+        value={password}
+        onChange={(event) => setPassword(event.target.value)}
+      />
 
-      <button type="submit" className={styles.primaryButton} disabled={pending}>
-        {pending ? "Signing in…" : "Sign in"}
-      </button>
+      <Button type="submit" fullWidth loading={pending} loadingText="Signing in…">
+        Sign in
+      </Button>
     </form>
   );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import styles from "../auth.module.css";
 import LoginForm from "./login-form";
+import styles from "./login.module.css";
 
 export const metadata: Metadata = {
   title: "Sign in",
@@ -9,21 +9,33 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <main className={styles.centered}>
-      <div className={styles.loginCard}>
-        <h1>Sign in</h1>
-        <p className={styles.muted}>
-          Use the account your administrator gave you. There is no self-registration.
-        </p>
-        <Suspense
-          fallback={
-            <p className={styles.status} role="status">
-              Loading sign-in form…
+    <main className={styles.page}>
+      <div className={styles.container}>
+        <div className={styles.brand}>
+          <span className={styles.brandMark} aria-hidden="true">
+            ELM
+          </span>
+          <span className={styles.brandName}>Employee Leave Management</span>
+        </div>
+        <section className={styles.card} aria-labelledby="login-title">
+          <div className={styles.intro}>
+            <h1 id="login-title" className={styles.title}>
+              Sign in
+            </h1>
+            <p className={styles.muted}>
+              Use the account your administrator gave you. There is no self-registration.
             </p>
-          }
-        >
-          <LoginForm />
-        </Suspense>
+          </div>
+          <Suspense
+            fallback={
+              <p className={styles.status} role="status">
+                Loading sign-in form…
+              </p>
+            }
+          >
+            <LoginForm />
+          </Suspense>
+        </section>
       </div>
     </main>
   );

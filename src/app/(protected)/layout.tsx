@@ -1,12 +1,13 @@
+import { AppShell } from "@/components/layout/app-shell";
 import RequireAuth from "@/components/require-auth";
-import SiteHeader from "@/components/site-header";
-import styles from "../auth.module.css";
+import { ToastProvider } from "@/components/ui/toast";
 
 export default function ProtectedLayout({ children }: LayoutProps<"/">) {
   return (
     <RequireAuth>
-      <SiteHeader />
-      <main className={styles.page}>{children}</main>
+      <ToastProvider>
+        <AppShell>{children}</AppShell>
+      </ToastProvider>
     </RequireAuth>
   );
 }

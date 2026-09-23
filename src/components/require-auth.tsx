@@ -1,23 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
+import { AccessDenied } from "@/components/states/access-denied";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Role } from "@/lib/auth";
-import styles from "@/app/auth.module.css";
 import { useAuth } from "./auth-provider";
+import styles from "./require-auth.module.css";
 
-export function AccessDenied() {
-  return (
-    <section className={styles.panel} role="alert" data-testid="access-denied">
-      <h2>Access denied</h2>
-      <p>You do not have permission to view this page.</p>
-      <Link href="/dashboard" className={styles.linkButton}>
-        Back to dashboard
-      </Link>
-    </section>
-  );
-}
+// Kept here so existing imports (`@/components/require-auth`) keep working.
+export { AccessDenied };
 
 type RequireAuthProps = {
   children: ReactNode;
@@ -47,10 +41,14 @@ export default function RequireAuth({ children }: RequireAuthProps) {
 
   if (auth.status === "loading") {
     return (
-      <main className={styles.page}>
+      <main className={styles.page} aria-busy="true">
         <p className={styles.status} role="status">
           Checking your session…
         </p>
+        <div className={styles.skeleton} aria-hidden="true">
+          <Skeleton variant="text" width="14rem" height="2rem" />
+          <Skeleton variant="rect" height="8rem" />
+        </div>
       </main>
     );
   }
@@ -58,13 +56,17 @@ export default function RequireAuth({ children }: RequireAuthProps) {
   if (auth.status === "error") {
     return (
       <main className={styles.page}>
-        <section className={styles.panel} role="alert">
-          <h2>Could not check your session</h2>
-          <p>{auth.message}</p>
-          <button type="button" className={styles.button} onClick={() => void auth.refresh()}>
-            Try again
-          </button>
-        </section>
+        <Alert
+          variant="error"
+          title="Could not check your session"
+          action={
+            <Button variant="secondary" iconStart="refresh" onClick={() => void auth.refresh()}>
+              Try again
+            </Button>
+          }
+        >
+          {auth.message}
+        </Alert>
       </main>
     );
   }

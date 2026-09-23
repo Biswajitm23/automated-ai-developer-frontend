@@ -45,3 +45,7 @@
   opacity: 0.6;
   cursor: progress;
 }
+
+.homeLink {
+  align-self: flex-start;
+}

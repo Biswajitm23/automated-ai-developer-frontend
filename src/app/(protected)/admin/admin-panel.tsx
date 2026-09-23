@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AccessDenied } from "@/components/require-auth";
-import { ApiError, NETWORK_ERROR_MESSAGE, apiFetch } from "@/lib/api";
-import styles from "../../auth.module.css";
-
-type PingResponse = { status: "ok"; role: "ADMIN" };
+import { AccessDenied } from "@/components/states/access-denied";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { ApiError, NETWORK_ERROR_MESSAGE } from "@/lib/api";
+import { pingAdmin } from "@/lib/services/admin-access";
 
 type PingState =
   | { kind: "loading" }
@@ -14,6 +16,11 @@ type PingState =
   | { kind: "signed-out" }
   | { kind: "error"; message: string };
 
+/**
+ * Interim /admin content (Phase A restyle of the ELM-002 panel; same state
+ * machine, texts and test ID). Phase C moves the check into
+ * admin-access-check.tsx inside the admin dashboard.
+ */
 export default function AdminPanel() {
   const [state, setState] = useState<PingState>({ kind: "loading" });
 
@@ -26,9 +33,7 @@ export default function AdminPanel() {
     controllerRef.current = controller;
     setState({ kind: "loading" });
     try {
-      const data = await apiFetch<PingResponse>("/api/admin/ping/", {
-        signal: controller.signal,
-      });
+      const data = await pingAdmin(controller.signal);
       if (controller.signal.aborted) return;
       setState(
         data?.status === "ok"
@@ -65,40 +70,39 @@ export default function AdminPanel() {
 
   return (
     <>
-      <h1>Admin</h1>
-      <section className={styles.panel} aria-live="polite" aria-labelledby="admin-access-heading">
-        <h2 id="admin-access-heading">Administrator access</h2>
+      <PageHeader title="Admin" />
+      <Card title="Administrator access" aria-live="polite">
         {state.kind === "loading" && (
-          <p className={styles.muted} data-testid="admin-ping-status">
-            Checking administrator access with the server…
-          </p>
+          <Alert variant="info" live={false}>
+            <span data-testid="admin-ping-status">Checking administrator access with the server…</span>
+          </Alert>
         )}
         {state.kind === "confirmed" && (
-          <p className={styles.ok} data-testid="admin-ping-status">
-            Administrator access confirmed by the server.
-          </p>
+          <Alert variant="success" live={false}>
+            <span data-testid="admin-ping-status">Administrator access confirmed by the server.</span>
+          </Alert>
         )}
         {state.kind === "signed-out" && (
-          <p className={styles.muted} data-testid="admin-ping-status">
-            Your session has ended. Redirecting to sign in…
-          </p>
+          <Alert variant="info" live={false}>
+            <span data-testid="admin-ping-status">Your session has ended. Redirecting to sign in…</span>
+          </Alert>
         )}
         {state.kind === "error" && (
-          <>
-            <p className={styles.alert} role="alert" data-testid="admin-ping-status">
-              {state.message}
-            </p>
-            <button type="button" className={styles.button} onClick={() => void ping()}>
-              Try again
-            </button>
-          </>
+          <Alert
+            variant="error"
+            action={
+              <Button variant="secondary" iconStart="refresh" onClick={() => void ping()}>
+                Try again
+              </Button>
+            }
+          >
+            <span data-testid="admin-ping-status">{state.message}</span>
+          </Alert>
         )}
         {state.kind === "confirmed" && (
-          <p className={styles.muted}>
-            Employee and leave management tools will be added here in later releases.
-          </p>
+          <p>Employee and leave management tools will be added here in later releases.</p>
         )}
-      </section>
+      </Card>
     </>
   );
 }
