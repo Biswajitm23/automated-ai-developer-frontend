@@ -5,7 +5,6 @@ import { AccessDenied } from "@/components/states/access-denied";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { PageHeader } from "@/components/ui/page-header";
 import { ApiError, NETWORK_ERROR_MESSAGE } from "@/lib/api";
 import { pingAdmin } from "@/lib/services/admin-access";
 
@@ -17,11 +16,12 @@ type PingState =
   | { kind: "error"; message: string };
 
 /**
- * Interim /admin content (Phase A restyle of the ELM-002 panel; same state
- * machine, texts and test ID). Phase C moves the check into
- * admin-access-check.tsx inside the admin dashboard.
+ * The ELM-002 server-side administrator check (GET /api/admin/ping/, always
+ * the real API). Same state machine, texts and test ID as the former
+ * admin-panel.tsx, without the page heading. The UI role check alone is not
+ * authoritative; the server answers 403 for anyone who is not an admin.
  */
-export default function AdminPanel() {
+export function AdminAccessCheck() {
   const [state, setState] = useState<PingState>({ kind: "loading" });
 
   const controllerRef = useRef<AbortController | null>(null);
@@ -69,40 +69,34 @@ export default function AdminPanel() {
   if (state.kind === "forbidden") return <AccessDenied />;
 
   return (
-    <>
-      <PageHeader title="Admin" />
-      <Card title="Administrator access" aria-live="polite">
-        {state.kind === "loading" && (
-          <Alert variant="info" live={false}>
-            <span data-testid="admin-ping-status">Checking administrator access with the server…</span>
-          </Alert>
-        )}
-        {state.kind === "confirmed" && (
-          <Alert variant="success" live={false}>
-            <span data-testid="admin-ping-status">Administrator access confirmed by the server.</span>
-          </Alert>
-        )}
-        {state.kind === "signed-out" && (
-          <Alert variant="info" live={false}>
-            <span data-testid="admin-ping-status">Your session has ended. Redirecting to sign in…</span>
-          </Alert>
-        )}
-        {state.kind === "error" && (
-          <Alert
-            variant="error"
-            action={
-              <Button variant="secondary" iconStart="refresh" onClick={() => void ping()}>
-                Try again
-              </Button>
-            }
-          >
-            <span data-testid="admin-ping-status">{state.message}</span>
-          </Alert>
-        )}
-        {state.kind === "confirmed" && (
-          <p>Employee and leave management tools will be added here in later releases.</p>
-        )}
-      </Card>
-    </>
+    <Card title="Administrator access" aria-live="polite" data-testid="admin-access-check">
+      {state.kind === "loading" && (
+        <Alert variant="info" live={false}>
+          <span data-testid="admin-ping-status">Checking administrator access with the server…</span>
+        </Alert>
+      )}
+      {state.kind === "confirmed" && (
+        <Alert variant="success" live={false}>
+          <span data-testid="admin-ping-status">Administrator access confirmed by the server.</span>
+        </Alert>
+      )}
+      {state.kind === "signed-out" && (
+        <Alert variant="info" live={false}>
+          <span data-testid="admin-ping-status">Your session has ended. Redirecting to sign in…</span>
+        </Alert>
+      )}
+      {state.kind === "error" && (
+        <Alert
+          variant="error"
+          action={
+            <Button variant="secondary" iconStart="refresh" onClick={() => void ping()}>
+              Try again
+            </Button>
+          }
+        >
+          <span data-testid="admin-ping-status">{state.message}</span>
+        </Alert>
+      )}
+    </Card>
   );
 }
