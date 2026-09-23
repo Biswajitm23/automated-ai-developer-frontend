@@ -1,11 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { API_BASE_URL } from "@/lib/api";
 import styles from "./page.module.css";
 
-const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000"
-).replace(/\/+$/, "");
 const HEALTH_URL = `${API_BASE_URL}/api/health/`;
 
 type HealthResponse = {
