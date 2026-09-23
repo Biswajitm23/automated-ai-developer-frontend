@@ -89,8 +89,10 @@ export default function ApplyLeaveForm() {
 function ApplyLeaveFormBody() {
   const router = useRouter();
   const { toast } = useToast();
-  // One id per form instance: a retried or double-sent submit creates one request.
-  const [clientRequestId] = useState(newClientRequestId);
+  // Idempotency key for the last attempted payload. A retry of the identical
+  // payload (type, dates, reason) reuses it, so a double-sent or retried
+  // submit creates one request; any change to the payload gets a new id.
+  const lastAttemptRef = useRef<{ payloadKey: string; id: string } | null>(null);
 
   const [leaveType, setLeaveType] = useState<LeaveTypeCode | "">("");
   const [startDate, setStartDate] = useState("");
@@ -99,7 +101,9 @@ function ApplyLeaveFormBody() {
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [serverErrors, setServerErrors] = useState<FieldErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
+  // `balance`: the submit was blocked by the client balance check, so the
+  // alert offers a balance refresh and disappears once the check passes.
+  const [formError, setFormError] = useState<{ message: string; balance?: boolean } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
   const [focusRequest, setFocusRequest] = useState<{ target: string; seq: number } | null>(null);
@@ -133,6 +137,9 @@ function ApplyLeaveFormBody() {
     today,
   });
   const formIssues = preview.issues.filter((issue) => issue.field === "form");
+  const exceedsBalance = formIssues.some((issue) => issue.code === "exceeds-balance");
+  // A balance block clears itself once fresh balances show enough days.
+  const visibleFormError = formError && formError.balance && !exceedsBalance ? null : formError;
 
   const clientErrors: FieldErrors = {
     leave_type: leaveType ? undefined : MESSAGES.leaveType,
@@ -206,23 +213,37 @@ function ApplyLeaveFormBody() {
 
     const firstInvalid = FIELD_ORDER.find((field) => clientErrors[field]);
     if (firstInvalid || formIssues.length > 0) {
-      setFormError(!firstInvalid && formIssues.length > 0 ? formIssues[0].message : CHECK_FIELDS_MESSAGE);
+      const blockedByBalance = !firstInvalid && formIssues[0]?.code === "exceeds-balance";
+      setFormError({
+        message: !firstInvalid && formIssues.length > 0 ? formIssues[0].message : CHECK_FIELDS_MESSAGE,
+        balance: blockedByBalance,
+      });
       requestFocus(firstInvalid ? FIELD_IDS[firstInvalid] : FORM_ALERT_ID);
+      // The client balance may be stale (e.g. a request was cancelled or an
+      // allowance raised elsewhere): fetch it again so the server's numbers
+      // decide. If there is now enough, the block lifts on its own.
+      if (blockedByBalance) balances.reload();
       return;
     }
+
+    const payload = {
+      leave_type: leaveType as LeaveTypeCode,
+      start_date: startDate,
+      end_date: endDate,
+      reason: reason.trim(),
+    };
+    const payloadKey = JSON.stringify([payload.leave_type, payload.start_date, payload.end_date, payload.reason]);
+    if (lastAttemptRef.current?.payloadKey !== payloadKey) {
+      lastAttemptRef.current = { payloadKey, id: newClientRequestId() };
+    }
+    const clientRequestId = lastAttemptRef.current.id;
 
     submittingRef.current = true;
     setSubmitting(true);
     setFormError(null);
     setServerErrors({});
     try {
-      const created = await createLeaveRequest({
-        leave_type: leaveType as LeaveTypeCode,
-        start_date: startDate,
-        end_date: endDate,
-        reason: reason.trim(),
-        client_request_id: clientRequestId,
-      });
+      const created = await createLeaveRequest({ ...payload, client_request_id: clientRequestId });
       toast({
         variant: "success",
         message: `Leave request submitted: ${formatDays(created.working_days)} of ${leaveTypeName(created.leave_type, typeList)}, waiting for approval.`,
@@ -233,7 +254,9 @@ function ApplyLeaveFormBody() {
       submittingRef.current = false;
       setSubmitting(false);
       if (error instanceof NotAvailableError) {
-        setFormError(`${error.feature} isn't available yet (${error.card}). Try again once the backend is released.`);
+        setFormError({
+          message: `${error.feature} isn't available yet (${error.card}). Try again once the backend is released.`,
+        });
         requestFocus(FORM_ALERT_ID);
         return;
       }
@@ -246,10 +269,11 @@ function ApplyLeaveFormBody() {
       setServerErrors(known);
       const summary = submitErrorMessage(error);
       const hasKnown = Object.keys(known).length > 0;
-      setFormError(
-        [summary === CHECK_FIELDS_MESSAGE && !hasKnown ? null : summary, ...other].filter(Boolean).join(" ") ||
+      setFormError({
+        message:
+          [summary === CHECK_FIELDS_MESSAGE && !hasKnown ? null : summary, ...other].filter(Boolean).join(" ") ||
           summary,
-      );
+      });
       const firstServer = FIELD_ORDER.find((field) => known[field]);
       requestFocus(firstServer ? FIELD_IDS[firstServer] : FORM_ALERT_ID);
       // The balance may have changed (e.g. another tab); refresh the preview.
@@ -293,9 +317,29 @@ function ApplyLeaveFormBody() {
           aria-label="Apply for leave"
           data-testid="leave-apply-form"
         >
-          {formError && (
-            <Alert variant="error" id={FORM_ALERT_ID} tabIndex={-1} data-testid="leave-apply-error">
-              {formError}
+          {visibleFormError && (
+            <Alert
+              variant="error"
+              id={FORM_ALERT_ID}
+              tabIndex={-1}
+              action={
+                visibleFormError.balance ? (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    iconStart="refresh"
+                    loading={balances.status === "loading"}
+                    loadingText="Refreshing…"
+                    onClick={balances.reload}
+                    data-testid="leave-apply-refresh-balance"
+                  >
+                    Refresh balance
+                  </Button>
+                ) : undefined
+              }
+              data-testid="leave-apply-error"
+            >
+              {visibleFormError.message}
             </Alert>
           )}
 

@@ -60,11 +60,11 @@ export function FilterBar({
       <div id={panelId} className={[styles.panel, expanded ? styles.open : null].filter(Boolean).join(" ")}>
         <div className={styles.controls}>{children}</div>
         <div className={styles.footer}>
-          {resultSummary && (
-            <p className={styles.summary} aria-live="polite">
-              {resultSummary}
-            </p>
-          )}
+          {/* Always rendered, so screen readers register the live region
+              before its text changes; only the text is updated. */}
+          <p className={styles.summary} aria-live="polite" aria-atomic="true">
+            {resultSummary ?? ""}
+          </p>
           <Button variant="ghost" onClick={onClear} disabled={activeCount === 0}>
             Clear filters
           </Button>

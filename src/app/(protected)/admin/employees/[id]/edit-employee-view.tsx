@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { EmployeeForm, type EmployeeFormValues } from "@/components/admin/employee-form";
 import { useEmployeeOptions } from "@/components/admin/employee-select";
 import { LoadError } from "@/components/states/load-error";
@@ -71,6 +71,12 @@ function EditEmployee({ id }: { id: string }) {
   const [updated, setUpdated] = useState<Employee | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [toggling, setToggling] = useState(false);
+  // Synchronous double-submit guard (state updates land a render later).
+  const togglingRef = useRef(false);
+  // Bumped after a successful save to reset the form to the saved values.
+  // Not keyed on updated_at: a deactivate/reactivate also changes that, and
+  // must not throw away unsaved edits in the form.
+  const [formVersion, setFormVersion] = useState(0);
   const [toggleError, setToggleError] = useState<string | null>(null);
 
   const employee = updated ?? state.data;
@@ -107,17 +113,19 @@ function EditEmployee({ id }: { id: string }) {
       department: values.department,
     });
     setUpdated(result);
+    setFormVersion((version) => version + 1);
     toast({ variant: "success", message: `Details saved for ${result.full_name}.` });
   }
 
   function closeDialog() {
-    if (toggling) return;
+    if (togglingRef.current) return;
     setToggleError(null);
     setDialogOpen(false);
   }
 
   async function toggleActive() {
-    if (toggling) return;
+    if (togglingRef.current) return; // double click / double Enter
+    togglingRef.current = true;
     setToggling(true);
     setToggleError(null);
     try {
@@ -125,6 +133,7 @@ function EditEmployee({ id }: { id: string }) {
         ? await deactivateEmployee(current.id)
         : await reactivateEmployee(current.id);
       setUpdated(result);
+      togglingRef.current = false;
       setToggling(false);
       setDialogOpen(false);
       toast({
@@ -135,6 +144,7 @@ function EditEmployee({ id }: { id: string }) {
       });
       pendingRequests.reload();
     } catch (error) {
+      togglingRef.current = false;
       setToggling(false);
       if (error instanceof NotAvailableError) {
         setToggleError(`${error.feature} isn't available yet (${error.card}).`);
@@ -183,7 +193,7 @@ function EditEmployee({ id }: { id: string }) {
       <div className={styles.detailGrid}>
         <Card title="Details" padding="lg">
           <EmployeeForm
-            key={`${current.id}-${current.updated_at}`}
+            key={`${current.id}-${formVersion}`}
             mode="edit"
             initial={current}
             departments={departments}

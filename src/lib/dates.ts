@@ -17,17 +17,44 @@ const APP_ZONE_OFFSET_LABEL = "+05:30";
 
 const DAY_MS = 86_400_000;
 
-const todayFormatter = new Intl.DateTimeFormat("en-CA", {
+const appZoneDateFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: APP_TIME_ZONE,
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
 });
 
+/**
+ * The Asia/Kolkata calendar date of an instant as "YYYY-MM-DD". Built from
+ * formatToParts year/month/day, so it never depends on a locale's output order
+ * or separators.
+ */
+function appZoneDateOf(instant: Date): ISODate {
+  let year = "";
+  let month = "";
+  let day = "";
+  for (const part of appZoneDateFormatter.formatToParts(instant)) {
+    if (part.type === "year") year = part.value;
+    else if (part.type === "month") month = part.value;
+    else if (part.type === "day") day = part.value;
+  }
+  return `${year.padStart(4, "0")}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
 /** Today's calendar date in Asia/Kolkata as "YYYY-MM-DD", regardless of the browser's zone. */
 export function todayInAppZone(now: Date = new Date()): ISODate {
-  // en-CA formats as YYYY-MM-DD.
-  return todayFormatter.format(now);
+  return appZoneDateOf(now);
+}
+
+/**
+ * The Asia/Kolkata calendar date of an ISO datetime ("2026-09-23T20:00:00Z" →
+ * "2026-09-24"). Invalid or empty input is returned unchanged.
+ */
+export function dateInAppZone(value: ISODateTime | null | undefined): ISODate {
+  if (!value) return "";
+  const instant = new Date(value);
+  if (Number.isNaN(instant.getTime())) return value;
+  return appZoneDateOf(instant);
 }
 
 /** The current year in Asia/Kolkata. */

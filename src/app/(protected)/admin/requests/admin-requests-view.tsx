@@ -18,6 +18,7 @@ import { TableSkeleton } from "@/components/ui/skeleton";
 import { parseISODate } from "@/lib/dates";
 import { STATUS_LABELS, formatDate, leaveTypeName } from "@/lib/format";
 import { listAdminRequests } from "@/lib/services/admin-requests";
+import { ApiError } from "@/lib/api";
 import { isNotFound } from "@/lib/services/errors";
 import { listLeaveTypes } from "@/lib/services/leave-types";
 import { DEFAULT_PAGE_SIZE, LEAVE_TYPE_CODES, REQUEST_STATUSES } from "@/lib/services/types";
@@ -38,6 +39,27 @@ const STATUS_OPTIONS = [
   { value: "", label: "All statuses" },
   ...REQUEST_STATUSES.map((status) => ({ value: status, label: STATUS_LABELS[status] })),
 ];
+
+/** Query params the server may reject with a field error, and their labels. */
+const FILTER_FIELD_LABELS: Record<string, string> = {
+  employee: "Employee",
+  status: "Status",
+  leave_type: "Leave type",
+  date_from: "From",
+  date_to: "To",
+};
+
+/**
+ * Field messages when the server rejected a filter value with a 400 (e.g. an
+ * unknown ?employee=), or null for any other error.
+ */
+function filterFieldErrors(error: unknown): string[] | null {
+  if (!(error instanceof ApiError) || error.status !== 400) return null;
+  const messages = Object.entries(error.fieldErrors)
+    .filter(([field, list]) => field in FILTER_FIELD_LABELS && list.length > 0)
+    .map(([field, list]) => `${FILTER_FIELD_LABELS[field]}: ${list[0]}`);
+  return messages.length > 0 ? messages : null;
+}
 
 const RANGE_ORDER_MESSAGE = "End of range must be on or after the start.";
 
@@ -211,6 +233,33 @@ export default function AdminRequestsView() {
       return <NotAvailableState feature={requests.feature} card={requests.card} />;
     }
     if (requests.status === "error" && !invalidPage) {
+      // A rejected filter value would fail again on "Try again": say which
+      // filter is wrong and offer to clear the filters instead.
+      const filterErrors = filterFieldErrors(requests.error);
+      if (filterErrors) {
+        return (
+          <Alert
+            variant="warning"
+            title="These filters can't be applied"
+            action={
+              <Button variant="secondary" size="sm" onClick={clearFilters} data-testid="filter-error-clear">
+                Clear filters
+              </Button>
+            }
+            data-testid="admin-requests-filter-error"
+          >
+            {filterErrors.length === 1 ? (
+              <p>{filterErrors[0]}</p>
+            ) : (
+              <ul>
+                {filterErrors.map((message) => (
+                  <li key={message}>{message}</li>
+                ))}
+              </ul>
+            )}
+          </Alert>
+        );
+      }
       return <LoadError error={requests.error} onRetry={requests.reload} what="the leave requests" />;
     }
     if (!data) return <TableSkeleton rows={8} columns={5} label="Loading leave requests…" />;

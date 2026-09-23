@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { formatDateRange, formatDays } from "@/lib/format";
 import { NotAvailableError, isConflict, isNotFound, submitErrorMessage } from "@/lib/services/errors";
@@ -31,23 +31,28 @@ export function CancelRequestDialog({
   onConflict,
 }: CancelRequestDialogProps) {
   const [pending, setPending] = useState(false);
+  // Synchronous double-submit guard, as in DecisionDialog (state lands a render later).
+  const pendingRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
 
   function close() {
-    if (pending) return;
+    if (pendingRef.current) return;
     setError(null);
     onClose();
   }
 
   async function confirm() {
-    if (pending) return;
+    if (pendingRef.current) return; // double click / double Enter
+    pendingRef.current = true;
     setPending(true);
     setError(null);
     try {
       const updated = await cancelLeaveRequest(request.id);
+      pendingRef.current = false;
       setPending(false);
       onCancelled(updated);
     } catch (caught) {
+      pendingRef.current = false;
       setPending(false);
       if (isConflict(caught)) {
         onConflict(caught.detail ?? "This request can no longer be cancelled.");

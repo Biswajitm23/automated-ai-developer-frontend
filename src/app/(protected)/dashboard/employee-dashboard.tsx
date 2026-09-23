@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useMemo } from "react";
 import { BalanceCard } from "@/components/leave/balance-card";
 import { LeaveRequestTable } from "@/components/leave/leave-request-table";
 import { yearSelectOptions } from "@/components/leave/year-options";
@@ -23,8 +23,6 @@ import { useAsync } from "@/lib/use-async";
 import { urlParam, useUrlState } from "@/lib/use-url-state";
 import styles from "./dashboard.module.css";
 
-const CURRENT_YEAR = currentYearInAppZone();
-const SCHEMA = { year: urlParam.year(CURRENT_YEAR) };
 const RECENT_COUNT = 5;
 
 function byTypeOrder(a: Balance, b: Balance): number {
@@ -33,7 +31,10 @@ function byTypeOrder(a: Balance, b: Balance): number {
 
 /** Employee landing page: balances per leave type, apply link, recent requests. */
 export default function EmployeeDashboard({ user }: { user: User }) {
-  const [{ year }, setUrl] = useUrlState(SCHEMA);
+  // Computed on each render (not at module load), so it follows the IST date.
+  const currentYear = currentYearInAppZone();
+  const schema = useMemo(() => ({ year: urlParam.year(currentYear) }), [currentYear]);
+  const [{ year }, setUrl] = useUrlState(schema);
   const balancesHeadingId = useId();
 
   const types = useAsync((signal) => listLeaveTypes(signal), []);
@@ -76,7 +77,7 @@ export default function EmployeeDashboard({ user }: { user: User }) {
           <Select
             label="Year"
             value={String(year)}
-            options={yearSelectOptions(year, CURRENT_YEAR)}
+            options={yearSelectOptions(year, currentYear)}
             onChange={(event) => setUrl({ year: Number(event.target.value) })}
             fieldClassName={styles.yearField}
             data-testid="balance-year"

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { TableSkeleton } from "./skeleton";
 import styles from "./responsive-table.module.css";
 
@@ -31,6 +31,10 @@ export type ResponsiveTableProps<T> = {
  * Semantic <table> at ≥768 px. Below that the same DOM is shown as one card
  * per row: each cell shows its header via data-label. Rows are not click
  * handlers; put a link in the first (primary) cell.
+ *
+ * The explicit ARIA table roles are on purpose: the card layout changes the
+ * CSS display of rows and cells, and some browsers then drop the native table
+ * semantics. The roles keep rows, cells and headers announced.
  */
 export function ResponsiveTable<T>({
   caption,
@@ -43,6 +47,8 @@ export function ResponsiveTable<T>({
   testId,
   captionId,
 }: ResponsiveTableProps<T>) {
+  const generatedCaptionId = useId();
+  const labelId = captionId ?? generatedCaptionId;
   if (loading && rows.length === 0) {
     return <TableSkeleton columns={Math.min(columns.length, 5)} label={`Loading ${caption.toLowerCase()}…`} />;
   }
@@ -50,19 +56,20 @@ export function ResponsiveTable<T>({
 
   return (
     <div className={styles.wrapper} aria-busy={loading || undefined}>
-      <table className={styles.table} data-testid={testId}>
+      <table role="table" aria-labelledby={labelId} className={styles.table} data-testid={testId}>
         <caption
-          id={captionId}
+          id={labelId}
           tabIndex={captionId ? -1 : undefined}
           className={captionHidden ? "visually-hidden" : styles.caption}
         >
           {caption}
         </caption>
-        <thead>
-          <tr>
+        <thead role="rowgroup">
+          <tr role="row">
             {columns.map((column) => (
               <th
                 key={column.key}
+                role="columnheader"
                 scope="col"
                 className={column.align === "end" ? styles.end : undefined}
               >
@@ -71,12 +78,13 @@ export function ResponsiveTable<T>({
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody role="rowgroup">
           {rows.map((row) => (
-            <tr key={rowKey(row)}>
+            <tr key={rowKey(row)} role="row">
               {columns.map((column) => (
                 <td
                   key={column.key}
+                  role="cell"
                   data-label={column.header}
                   className={[
                     column.align === "end" ? styles.end : null,

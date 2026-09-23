@@ -34,7 +34,7 @@
   color: var(--color-on-primary);
 }
 
-.primary:hover:not(:disabled) {
+.primary:hover:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-primary-hover);
   border-color: var(--color-primary-hover);
   color: var(--color-on-primary);
@@ -46,7 +46,7 @@
   color: var(--color-text);
 }
 
-.secondary:hover:not(:disabled) {
+.secondary:hover:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-surface-muted);
   color: var(--color-text);
 }
@@ -56,7 +56,7 @@
   color: var(--color-primary-text);
 }
 
-.ghost:hover:not(:disabled) {
+.ghost:hover:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-primary-subtle);
   color: var(--color-primary-text);
 }
@@ -67,7 +67,7 @@
   color: var(--color-on-primary);
 }
 
-.danger:hover:not(:disabled) {
+.danger:hover:not(:disabled, [aria-disabled="true"]) {
   background: var(--color-danger-hover);
   border-color: var(--color-danger-hover);
   color: var(--color-on-primary);
@@ -93,7 +93,9 @@
   width: 100%;
 }
 
-.button:disabled {
+/* aria-disabled: a loading button stays focusable but looks and acts disabled. */
+.button:disabled,
+.button[aria-disabled="true"] {
   opacity: 0.65;
   cursor: not-allowed;
 }

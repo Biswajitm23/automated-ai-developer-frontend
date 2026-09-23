@@ -73,6 +73,14 @@
   padding: 0;
 }
 
+/* ConfirmDialog body text; spaced like direct children of .body. */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
 .description {
   color: var(--color-text-muted);
 }

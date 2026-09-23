@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AllowanceTable } from "@/components/admin/allowance-table";
 import { EmployeeSelect, useEmployeeOptions } from "@/components/admin/employee-select";
 import { yearSelectOptions } from "@/components/leave/year-options";
@@ -22,12 +22,13 @@ import { useAsync } from "@/lib/use-async";
 import { urlParam, useUrlState } from "@/lib/use-url-state";
 import styles from "../admin.module.css";
 
-const CURRENT_YEAR = currentYearInAppZone();
-
-const SCHEMA = {
-  employee: urlParam.id(),
-  year: urlParam.year(CURRENT_YEAR),
-};
+/** Built per current year, so a tab left open across New Year (IST) stays right. */
+function buildSchema(currentYear: number) {
+  return {
+    employee: urlParam.id(),
+    year: urlParam.year(currentYear),
+  };
+}
 
 /**
  * /admin/allowances?employee=&year=: annual allowance per leave type for one
@@ -35,7 +36,10 @@ const SCHEMA = {
  * URL, so the page can be linked from the employee page.
  */
 export default function AllowanceManager() {
-  const [{ employee: employeeId, year }, setUrl] = useUrlState(SCHEMA);
+  // Computed on each render (not at module load), so it follows the IST date.
+  const currentYear = currentYearInAppZone();
+  const schema = useMemo(() => buildSchema(currentYear), [currentYear]);
+  const [{ employee: employeeId, year }, setUrl] = useUrlState(schema);
   const employees = useEmployeeOptions();
   const types = useAsync((signal) => listLeaveTypes(signal), []);
   const leaveTypes = types.status === "success" ? types.data : null;
@@ -61,7 +65,7 @@ export default function AllowanceManager() {
         <Select
           label="Year"
           value={String(year)}
-          options={yearSelectOptions(year, CURRENT_YEAR)}
+          options={yearSelectOptions(year, currentYear)}
           onChange={(event) => setUrl({ year: Number(event.target.value) })}
           data-testid="allowance-year"
         />
@@ -126,8 +130,13 @@ type PanelProps = {
 
 function AllowancePanel({ employeeId, employee, year, leaveTypes }: PanelProps) {
   const state = useAsync((signal) => getAllowances(employeeId, year, signal), [employeeId, year]);
-  // Rows saved in this session replace the loaded ones.
-  const [saved, setSaved] = useState<Partial<Record<LeaveTypeCode, Allowance>>>({});
+  // Rows saved in this session replace the loaded ones, but only on top of the
+  // response they were saved against: a reload brings fresh server rows, which
+  // already include those saves, so the overrides are dropped then.
+  const [saved, setSaved] = useState<{
+    base: unknown;
+    rows: Partial<Record<LeaveTypeCode, Allowance>>;
+  }>({ base: null, rows: {} });
 
   if (state.status === "not-available") {
     return <NotAvailableState feature={state.feature} card={state.card} />;
@@ -147,7 +156,9 @@ function AllowancePanel({ employeeId, employee, year, leaveTypes }: PanelProps) 
   }
   if (!state.data) return <TableSkeleton rows={2} columns={5} label="Loading allowances…" />;
 
-  const rows = state.data.allowances.map((row) => saved[row.leave_type] ?? row);
+  const base = state.data;
+  const overrides = saved.base === base ? saved.rows : {};
+  const rows = base.allowances.map((row) => overrides[row.leave_type] ?? row);
   const name = employee?.full_name ?? `Employee #${employeeId}`;
 
   if (rows.length === 0) {
@@ -187,7 +198,13 @@ function AllowancePanel({ employeeId, employee, year, leaveTypes }: PanelProps) 
         year={year}
         rows={rows}
         leaveTypes={leaveTypes}
-        onSaved={(row) => setSaved((current) => ({ ...current, [row.leave_type]: row }))}
+        onSaved={(row) =>
+          setSaved((current) => ({
+            base,
+            rows: { ...(current.base === base ? current.rows : {}), [row.leave_type]: row },
+          }))
+        }
+        onStale={state.reload}
       />
     </div>
   );

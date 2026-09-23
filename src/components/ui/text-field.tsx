@@ -81,6 +81,10 @@ export function SearchField({
   const fieldId = id ?? autoId;
   const [draft, setDraft] = useState(value);
   const [appliedValue, setAppliedValue] = useState(value);
+  // The value this field last handed to onSearch. When it comes back as the
+  // new `value`, the draft is left alone: the user may have typed more (or a
+  // trailing space) since, and resetting would drop those keystrokes.
+  const [sentValue, setSentValue] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSearchRef = useRef(onSearch);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -89,10 +93,15 @@ export function SearchField({
     onSearchRef.current = onSearch;
   }, [onSearch]);
 
-  // The applied value changed from outside (Clear filters, Back button): follow it.
   if (value !== appliedValue) {
     setAppliedValue(value);
-    setDraft(value);
+    if (value === sentValue) {
+      // Our own search came back: keep the draft.
+      setSentValue(null);
+    } else {
+      // Changed from outside (Clear filters, Back button): follow it.
+      setDraft(value);
+    }
   }
 
   useEffect(() => () => {
@@ -103,7 +112,11 @@ export function SearchField({
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => {
       timer.current = null;
-      if (next.trim() !== value.trim()) onSearchRef.current(next.trim());
+      const applied = next.trim();
+      if (applied !== value.trim()) {
+        setSentValue(applied);
+        onSearchRef.current(applied);
+      }
     }, delay);
   }
 

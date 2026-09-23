@@ -69,23 +69,15 @@ function delay(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
-const USER_CACHE_MS = 30_000;
-let cachedUser: { user: User; at: number } | null = null;
-
 /**
- * The real signed-in user (GET /api/auth/me/, cached for 30 s). A 401 goes
- * through the normal unauthorized handler, so the app signs out as usual.
+ * The real signed-in user (GET /api/auth/me/), fetched on every dispatch.
+ * Deliberately not cached: an SPA logout and login (or a role switch) must
+ * never see the previous user's identity. Dev-only, so the extra request is
+ * fine. A 401 goes through the normal unauthorized handler, so the app signs
+ * out as usual.
  */
 async function currentUser(signal?: AbortSignal): Promise<User> {
-  if (cachedUser && Date.now() - cachedUser.at < USER_CACHE_MS) return cachedUser.user;
-  try {
-    const user = await apiFetch<User>("/api/auth/me/", { signal });
-    cachedUser = { user, at: Date.now() };
-    return user;
-  } catch (error) {
-    cachedUser = null;
-    throw error;
-  }
+  return apiFetch<User>("/api/auth/me/", { signal });
 }
 
 function compile(routes: RouteDef[]): CompiledRoute[] {

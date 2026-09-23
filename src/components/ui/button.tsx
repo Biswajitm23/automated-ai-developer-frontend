@@ -31,7 +31,12 @@ export function buttonClassName({
 export type ButtonProps = ComponentPropsWithRef<"button"> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
-  /** Disables the button, sets aria-busy and shows a spinner with `loadingText`. */
+  /**
+   * Blocks activation, sets aria-busy and aria-disabled and shows a spinner
+   * with `loadingText`. The button stays focusable while loading (it is not
+   * natively disabled), so keyboard focus is not lost to <body> during a
+   * request or after a failed one.
+   */
   loading?: boolean;
   loadingText?: string;
   fullWidth?: boolean;
@@ -48,16 +53,30 @@ export function Button({
   className,
   type = "button",
   disabled,
+  onClick,
   children,
   ...props
 }: ButtonProps) {
+  // While loading, activation is blocked with a click guard instead of native
+  // `disabled`: this stops double clicks and a second implicit form submit
+  // (Enter in a field clicks the default button), but keeps focus here.
+  const blocked = loading && !disabled;
   return (
     <button
       {...props}
       type={type}
       className={buttonClassName({ variant, size, fullWidth, className })}
-      disabled={disabled || loading}
+      disabled={disabled}
+      aria-disabled={blocked || undefined}
       aria-busy={loading || undefined}
+      onClick={(event) => {
+        if (blocked) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+        onClick?.(event);
+      }}
     >
       {loading ? (
         <span className={styles.spinner} aria-hidden="true" />

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { ResponsiveTable, type TableColumn } from "@/components/ui/responsive-table";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
-import { formatDate, formatDateRange, formatDateTime, formatDays, leaveTypeName } from "@/lib/format";
+import { formatDateInAppZone, formatDateRange, formatDateTime, formatDays, leaveTypeName } from "@/lib/format";
 import type { LeaveRequest, LeaveType } from "@/lib/services/types";
 
 export type LeaveRequestTableProps = {
@@ -70,7 +70,7 @@ export function LeaveRequestTable({
       hideOnMobile: true,
       cell: (request) => (
         <time dateTime={request.created_at} title={formatDateTime(request.created_at)}>
-          {formatDate(request.created_at.slice(0, 10))}
+          {formatDateInAppZone(request.created_at)}
         </time>
       ),
     });

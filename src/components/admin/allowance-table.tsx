@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { ErrorText, fieldStyles, joinIds } from "@/components/ui/form-field";
 import tableStyles from "@/components/ui/responsive-table.module.css";
 import { useToast } from "@/components/ui/toast";
+import { ApiError } from "@/lib/api";
 import { formatDateTime, formatDays, leaveTypeName } from "@/lib/format";
 import { setAllowance } from "@/lib/services/admin-allowances";
 import { NotAvailableError, firstFieldErrors, isNotFound, submitErrorMessage } from "@/lib/services/errors";
@@ -39,6 +40,11 @@ export type AllowanceTableProps = {
   leaveTypes?: LeaveType[] | null;
   /** The server saved a row; the parent replaces it. */
   onSaved: (row: Allowance) => void;
+  /**
+   * The server rejected a save with 400 or 409, so this row's approved,
+   * pending or minimum values may be out of date; the parent reloads them.
+   */
+  onStale?: () => void;
   testId?: string;
 };
 
@@ -55,34 +61,39 @@ export function AllowanceTable({
   rows,
   leaveTypes,
   onSaved,
+  onStale,
   testId = "allowance-table",
 }: AllowanceTableProps) {
+  const captionId = useId();
   const sorted = [...rows].sort(
     (a, b) => LEAVE_TYPE_CODES.indexOf(a.leave_type) - LEAVE_TYPE_CODES.indexOf(b.leave_type),
   );
   return (
     <div className={tableStyles.wrapper}>
-      <table className={tableStyles.table} data-testid={testId}>
-        <caption className={tableStyles.caption}>
+      {/* Explicit ARIA table roles: the stacked card layout below 768 px
+          changes the CSS display of rows and cells, which can drop the native
+          table semantics in some browsers. */}
+      <table role="table" aria-labelledby={captionId} className={tableStyles.table} data-testid={testId}>
+        <caption id={captionId} className={tableStyles.caption}>
           Annual allowances for <span className={styles.name}>{employeeName}</span>, {year}
         </caption>
-        <thead>
-          <tr>
-            <th scope="col">Leave type</th>
-            <th scope="col">Allowance (days)</th>
-            <th scope="col" className={tableStyles.end}>
+        <thead role="rowgroup">
+          <tr role="row">
+            <th role="columnheader" scope="col">Leave type</th>
+            <th role="columnheader" scope="col">Allowance (days)</th>
+            <th role="columnheader" scope="col" className={tableStyles.end}>
               Approved (used)
             </th>
-            <th scope="col" className={tableStyles.end}>
+            <th role="columnheader" scope="col" className={tableStyles.end}>
               Pending (reserved)
             </th>
-            <th scope="col" className={tableStyles.end}>
+            <th role="columnheader" scope="col" className={tableStyles.end}>
               Available
             </th>
-            <th scope="col">Save</th>
+            <th role="columnheader" scope="col">Save</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody role="rowgroup">
           {sorted.map((row) => (
             <AllowanceRow
               key={row.leave_type}
@@ -91,6 +102,7 @@ export function AllowanceTable({
               employeeId={employeeId}
               year={year}
               onSaved={onSaved}
+              onStale={onStale}
             />
           ))}
         </tbody>
@@ -105,9 +117,10 @@ type RowProps = {
   employeeId: number;
   year: number;
   onSaved: (row: Allowance) => void;
+  onStale?: () => void;
 };
 
-function AllowanceRow({ row, typeName, employeeId, year, onSaved }: RowProps) {
+function AllowanceRow({ row, typeName, employeeId, year, onSaved, onStale }: RowProps) {
   const { toast } = useToast();
   const [draft, setDraft] = useState(String(row.days));
   const [error, setError] = useState<string | null>(null);
@@ -163,6 +176,10 @@ function AllowanceRow({ row, typeName, employeeId, year, onSaved }: RowProps) {
       }
       setError(message);
       setFocusSeq((seq) => seq + 1);
+      // A 400 (e.g. below the minimum) or 409 usually means approved/pending
+      // changed since the page loaded: refresh them so the hint and minimum
+      // match what the server checks. The typed value is kept.
+      if (caught instanceof ApiError && (caught.status === 400 || caught.status === 409)) onStale?.();
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -177,8 +194,8 @@ function AllowanceRow({ row, typeName, employeeId, year, onSaved }: RowProps) {
   }
 
   return (
-    <tr data-testid={`allowance-row-${code}`} data-days={row.days} data-available={row.available}>
-      <td className={tableStyles.primary} data-label="Leave type">
+    <tr role="row" data-testid={`allowance-row-${code}`} data-days={row.days} data-available={row.available}>
+      <td role="cell" className={tableStyles.primary} data-label="Leave type">
         <span className={styles.typeName}>{typeName}</span>
         {notSet && (
           <span className={styles.notSet} data-testid="allowance-not-set">
@@ -189,7 +206,7 @@ function AllowanceRow({ row, typeName, employeeId, year, onSaved }: RowProps) {
           <span className={styles.updated}>Updated {formatDateTime(row.updated_at)}</span>
         )}
       </td>
-      <td data-label="Allowance (days)">
+      <td role="cell" data-label="Allowance (days)">
         <div className={styles.inputCell}>
           <label htmlFor={inputId} className="visually-hidden">
             {typeName} allowance for {year}, in days
@@ -220,16 +237,16 @@ function AllowanceRow({ row, typeName, employeeId, year, onSaved }: RowProps) {
           {error && <ErrorText id={errorId}>{error}</ErrorText>}
         </div>
       </td>
-      <td className={tableStyles.end} data-label="Approved (used)">
+      <td role="cell" className={tableStyles.end} data-label="Approved (used)">
         {formatDays(row.approved)}
       </td>
-      <td className={tableStyles.end} data-label="Pending (reserved)">
+      <td role="cell" className={tableStyles.end} data-label="Pending (reserved)">
         {formatDays(row.pending)}
       </td>
-      <td className={tableStyles.end} data-label="Available" data-testid={`allowance-available-${code}`}>
+      <td role="cell" className={tableStyles.end} data-label="Available" data-testid={`allowance-available-${code}`}>
         {formatDays(row.available)}
       </td>
-      <td data-label="Save">
+      <td role="cell" data-label="Save">
         <div className={styles.actionCell}>
           <Button
             size="sm"

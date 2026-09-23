@@ -44,6 +44,8 @@ export type DialogProps = {
   /** Receives focus on close. Default: the element that had focus when it opened. */
   returnFocusRef?: RefObject<HTMLElement | null>;
   closeOnBackdrop?: boolean;
+  /** Extra element id(s) that describe the dialog, added to aria-describedby. */
+  describedBy?: string;
   /** While true (a request is in flight) Esc, backdrop and the close button do nothing. */
   busy?: boolean;
   id?: string;
@@ -68,6 +70,7 @@ export function Dialog({
   returnFocusRef,
   closeOnBackdrop = true,
   busy = false,
+  describedBy,
   id,
   testId,
 }: DialogProps) {
@@ -141,7 +144,7 @@ export function Dialog({
       className={[styles.dialog, variant === "drawer" ? styles.drawer : styles.modal].join(" ")}
       aria-modal="true"
       aria-labelledby={titleId}
-      aria-describedby={description ? descriptionId : undefined}
+      aria-describedby={[description ? descriptionId : null, describedBy].filter(Boolean).join(" ") || undefined}
       aria-busy={busy || undefined}
       data-testid={testId}
       onKeyDown={handleKeyDown}
@@ -226,6 +229,7 @@ export function ConfirmDialog({
   testId = "confirm-dialog",
 }: ConfirmDialogProps) {
   const cancelRef = useRef<HTMLButtonElement>(null);
+  const contentId = useId();
   return (
     <Dialog
       open={open}
@@ -233,6 +237,7 @@ export function ConfirmDialog({
       title={title}
       busy={pending}
       initialFocusRef={tone === "danger" ? cancelRef : undefined}
+      describedBy={children ? contentId : undefined}
       testId={testId}
       footer={
         <>
@@ -251,7 +256,12 @@ export function ConfirmDialog({
       }
     >
       {error && <Alert variant="error">{error}</Alert>}
-      {children}
+      {children && (
+        // The body text is the dialog's description for screen readers.
+        <div id={contentId} className={styles.content}>
+          {children}
+        </div>
+      )}
     </Dialog>
   );
 }

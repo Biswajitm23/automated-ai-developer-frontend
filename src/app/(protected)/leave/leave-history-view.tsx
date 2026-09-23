@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId } from "react";
+import { useEffect, useId, useMemo } from "react";
 import { LeaveRequestTable } from "@/components/leave/leave-request-table";
 import { yearSelectOptions } from "@/components/leave/year-options";
 import { LoadError } from "@/components/states/load-error";
@@ -21,30 +21,34 @@ import { DEFAULT_PAGE_SIZE, REQUEST_STATUSES } from "@/lib/services/types";
 import { useAsync } from "@/lib/use-async";
 import { urlParam, useUrlState, type UrlParam } from "@/lib/use-url-state";
 
-const CURRENT_YEAR = currentYearInAppZone();
 const ALL_YEARS = "all";
 
 /**
  * ?year=: absent → the current year, "all" → every year (undefined),
  * 2000–2100 → that year. Anything else falls back to the current year.
  */
-const yearFilter: UrlParam<number | undefined> = {
-  parse: (raw) => {
-    if (raw === ALL_YEARS) return undefined;
-    if (raw !== null && /^\d{4}$/.test(raw)) {
-      const year = Number(raw);
-      if (year >= 2000 && year <= 2100) return year;
-    }
-    return CURRENT_YEAR;
-  },
-  serialize: (value) => (value === undefined ? ALL_YEARS : value === CURRENT_YEAR ? null : String(value)),
-};
+function yearFilter(currentYear: number): UrlParam<number | undefined> {
+  return {
+    parse: (raw) => {
+      if (raw === ALL_YEARS) return undefined;
+      if (raw !== null && /^\d{4}$/.test(raw)) {
+        const year = Number(raw);
+        if (year >= 2000 && year <= 2100) return year;
+      }
+      return currentYear;
+    },
+    serialize: (value) => (value === undefined ? ALL_YEARS : value === currentYear ? null : String(value)),
+  };
+}
 
-const SCHEMA = {
-  year: yearFilter,
-  status: urlParam.enum(REQUEST_STATUSES),
-  page: urlParam.page(),
-};
+/** Built per current year, so a tab left open across New Year (IST) stays right. */
+function buildSchema(currentYear: number) {
+  return {
+    year: yearFilter(currentYear),
+    status: urlParam.enum(REQUEST_STATUSES),
+    page: urlParam.page(),
+  };
+}
 
 const STATUS_OPTIONS = [
   { value: "", label: "All statuses" },
@@ -57,7 +61,10 @@ function plural(count: number, noun: string): string {
 
 /** /leave: the employee's own requests with year and status filters. */
 export default function LeaveHistoryView() {
-  const [{ year, status, page }, setUrl] = useUrlState(SCHEMA);
+  // Computed on each render (not at module load), so it follows the IST date.
+  const currentYear = currentYearInAppZone();
+  const schema = useMemo(() => buildSchema(currentYear), [currentYear]);
+  const [{ year, status, page }, setUrl] = useUrlState(schema);
   const captionId = useId();
 
   const types = useAsync((signal) => listLeaveTypes(signal), []);
@@ -74,8 +81,8 @@ export default function LeaveHistoryView() {
     if (invalidPage) setUrl({ page: 1 });
   }, [invalidPage, setUrl]);
 
-  const activeCount = (year !== CURRENT_YEAR ? 1 : 0) + (status ? 1 : 0);
-  const clearFilters = () => setUrl({ year: CURRENT_YEAR, status: undefined });
+  const activeCount = (year !== currentYear ? 1 : 0) + (status ? 1 : 0);
+  const clearFilters = () => setUrl({ year: currentYear, status: undefined });
   const yearLabel = year === undefined ? "all years" : String(year);
   const data = requests.data;
 
@@ -103,7 +110,7 @@ export default function LeaveHistoryView() {
         <Select
           label="Year"
           value={year === undefined ? ALL_YEARS : String(year)}
-          options={[{ value: ALL_YEARS, label: "All years" }, ...yearSelectOptions(year, CURRENT_YEAR)]}
+          options={[{ value: ALL_YEARS, label: "All years" }, ...yearSelectOptions(year, currentYear)]}
           onChange={(event) =>
             setUrl({ year: event.target.value === ALL_YEARS ? undefined : Number(event.target.value) })
           }
@@ -185,7 +192,7 @@ export default function LeaveHistoryView() {
       );
     }
     // Only the default year filter: nothing this year.
-    if (year === CURRENT_YEAR && !status) {
+    if (year === currentYear && !status) {
       return (
         <EmptyState
           icon="calendar"

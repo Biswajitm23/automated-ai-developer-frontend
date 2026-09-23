@@ -4,7 +4,7 @@
  * in every browser (no hydration mismatches, no "Sept" vs "Sep").
  */
 
-import { APP_TIME_ZONE, parseISODate } from "./dates";
+import { APP_TIME_ZONE, dateInAppZone, parseISODate } from "./dates";
 import type { ISODate, ISODateTime, LeaveType, LeaveTypeCode, RequestStatus } from "./services/types";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -64,6 +64,16 @@ export function formatDateTime(value: ISODateTime | null | undefined): string {
   for (const part of dateTimeFormatter.formatToParts(date)) parts[part.type] = part.value;
   const hour = parts.hour === "24" ? "00" : parts.hour.padStart(2, "0");
   return `${Number(parts.day)} ${MONTHS[Number(parts.month) - 1]} ${parts.year}, ${hour}:${parts.minute} IST`;
+}
+
+/**
+ * ISO datetime → its calendar date in Asia/Kolkata, formatted like formatDate
+ * ("2026-09-23T20:00:00Z" → "24 Sep 2026"). Use this instead of slicing the
+ * datetime string, which would give the date in the timestamp's own offset.
+ */
+export function formatDateInAppZone(value: ISODateTime | null | undefined): string {
+  if (!value) return "";
+  return formatDate(dateInAppZone(value));
 }
 
 /** 1 → "1 day", 3 → "3 days". */
