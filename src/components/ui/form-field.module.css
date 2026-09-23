@@ -1,0 +1,148 @@
+/* Field layout plus the shared control styles used by TextField, Select,
+   DateField, Textarea and SearchField. */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.label {
+  font-weight: var(--font-semibold);
+  color: var(--color-text);
+}
+
+.marker {
+  font-weight: var(--font-regular);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.hint {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-danger);
+}
+
+.errorIcon {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.control {
+  width: 100%;
+  min-height: var(--control-height);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-base);
+  line-height: var(--leading-base);
+  transition: border-color var(--duration-fast) var(--easing-standard);
+}
+
+.control::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+  border-color: var(--color-focus);
+}
+
+.control[aria-invalid="true"] {
+  border-color: var(--color-danger);
+  border-width: 2px;
+  padding: calc(var(--space-2) - 1px) calc(var(--space-3) - 1px);
+}
+
+.control:disabled {
+  background: var(--color-surface-muted);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Select with a custom chevron */
+.selectWrap {
+  position: relative;
+}
+
+.select {
+  appearance: none;
+  padding-right: var(--space-10);
+  cursor: pointer;
+}
+
+.select[aria-invalid="true"] {
+  padding-right: var(--space-10);
+}
+
+.chevron {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-text-muted);
+}
+
+/* Textarea */
+.textarea {
+  resize: vertical;
+  min-height: 7rem;
+  field-sizing: content;
+  max-height: 20rem;
+}
+
+.counter {
+  align-self: flex-end;
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.counterWarn {
+  color: var(--color-warning);
+  font-weight: var(--font-semibold);
+}
+
+/* Search field */
+.searchWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.search {
+  padding-left: var(--space-10);
+  padding-right: var(--space-12);
+}
+
+.search::-webkit-search-cancel-button {
+  display: none;
+}
+
+.clear {
+  position: absolute;
+  right: 0;
+}

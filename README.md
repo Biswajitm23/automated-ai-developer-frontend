@@ -43,10 +43,21 @@ on the same hostname (`http://localhost:8000`). See
 |---|---|---|
 | `/` | Public | Backend health check, plus a **Sign in** / **Go to dashboard** link |
 | `/login` | Public | Sign-in form. Accepts `?next=/some/path` (same-site paths only) |
-| `/dashboard` | Signed-in users | Shows the signed-in user and their role |
+| `/dashboard` | Signed-in users | Shows the signed-in user and their role (interim; the employee dashboard arrives in ELM-UI-001 Phase B) |
 | `/admin` | Role `ADMIN` | Confirms administrator access with `GET /api/admin/ping/`. Employees see "Access denied" |
+| anything else | Any | "Page not found" card (`src/app/not-found.tsx`), e.g. `/register` |
 
 There is no registration page. Accounts are created by an administrator.
+
+Signed-in pages share one layout (`src/components/layout/`): a sidebar with the
+navigation and the account block (name, role, **Log out**) from 1024 px, and a
+top bar with a **Menu** button that opens the same content in a drawer below
+1024 px. The navigation already lists the employee (`/leave`, `/leave/apply`)
+and admin (`/admin/requests`, `/admin/employees`, `/admin/allowances`) pages
+from the UI design; until those pages are built they show "Page not found".
+
+The design, component library, API contracts and the plan for the remaining
+pages are in [docs/ui-design.md](docs/ui-design.md).
 
 ## Signing in
 
@@ -86,6 +97,48 @@ with `http://localhost:8000`, or `127.0.0.1` for both. Mixing `localhost` and
 `127.0.0.1` makes them different sites, and sign-in appears to succeed but you
 are sent straight back to the login page.
 
+## Mock API (development only)
+
+Most leave-management endpoints are not in the backend yet. Each group of
+endpoints has an availability flag in `src/lib/services/availability.ts`.
+While a flag is `false`, pages show **"… isn't available yet"**. For design and
+development you can serve those endpoints from an in-browser mock instead:
+
+```bash
+NEXT_PUBLIC_USE_MOCK_API=true npm run dev
+```
+
+(or set it in `.env.local` and restart `npm run dev`). A blue banner, "Development
+data: some screens use the mock API", is shown on every signed-in page.
+
+- **Development only.** The mock is enabled only when `NODE_ENV` is not
+  `production` *and* the flag is `true`. `npm run build` ignores the flag (it
+  prints a warning) and the mock code is not included in the build.
+- **Real sign-in.** Login, logout, the session, CSRF and `/api/admin/ping/`
+  always use the real backend. There is no role switching: the role comes from
+  the real session, and the mock applies the same role rules (403) as the API.
+- **Data** is fictional (`src/lib/mock/seed.ts`): 12 employees (two inactive,
+  some with very long names and departments), about 100 requests including long
+  reasons and remarks. The signed-in employee gets their own history of about
+  25 requests on first use. The data lives in memory: it survives navigation
+  and resets on a full page reload.
+- **Real endpoints win.** When a backend card ships an endpoint group, set its
+  flag to `true`; the page then uses the real API even with the mock flag on.
+
+### Scenarios
+
+To show the loading, empty and error states, set a scenario in the browser
+console and reload:
+
+```js
+localStorage.setItem("elm-mock", JSON.stringify({ scenario: "empty" }));
+// "normal" (default) | "empty" (no data) | "error" (every GET returns 500) | "slow" (3 s latency)
+localStorage.setItem("elm-mock", JSON.stringify({ scenario: "normal", latencyMs: 400 }));
+localStorage.removeItem("elm-mock");
+```
+
+The default latency is a random 250–600 ms.
+
 ## Manual verification checklist
 
 Run the backend and `npm run dev`, open `http://localhost:3000`, and have an
@@ -97,12 +150,16 @@ employee you can deactivate (Django admin, untick **Active**).
 | Valid credentials allow login | Sign in at `/login` as the admin, then as the employee | Lands on `/dashboard` showing the username and role (Administrator / Employee) |
 | Invalid credentials show a clear error | Submit a wrong password; submit the form empty | "Invalid username or password." alert, password cleared; empty fields show "Enter your username." / "Enter your password." without a request |
 | Logout ends access to protected resources | Click **Log out**, then open `/dashboard` and press Back | Sent to `/login`; `/dashboard` redirects to `/login?next=%2Fdashboard`; `GET /api/auth/me/` returns 401 |
-| Employees cannot access admin APIs or pages | As the employee, open `/admin` | "Access denied" panel, no Admin link in the header; `GET /api/admin/ping/` returns 403 |
+| Employees cannot access admin APIs or pages | As the employee, open `/admin` | "Access denied" panel, no admin links in the navigation; `GET /api/admin/ping/` returns 403 |
 | Admin access (control) | As the admin, open `/admin` | "Administrator access confirmed by the server." |
 | Inactive accounts cannot access protected resources | Deactivate a signed-in employee, then reload or refocus the tab; try signing in again | Sent to `/login`; sign-in shows the same generic error |
 | Safe redirects | Open `/login?next=//evil.example` and sign in | Lands on `/dashboard` |
 | No public registration | Look for a sign-up link; open `/register` | No link; 404 |
-| Responsive | Resize to 375 px wide | Login form, header and **Log out** fit without horizontal scrolling |
+| Responsive | Resize to 375 px wide; open **Menu** | Login form, top bar and the menu drawer (with **Log out**) fit without horizontal scrolling. The drawer closes with Esc and focus returns to **Menu** |
+| Page not found | Open `/does-not-exist` | "Page not found" card with **Go to dashboard** and **Home** |
+
+**Log out** is in the sidebar at 1024 px and wider. Below 1024 px it is in the
+menu drawer: select **Menu** (`data-testid="mobile-menu-button"`) first.
 
 Expected console noise: while you are signed out, the app re-checks the session
 when the tab regains focus (at most once a second). On `/login` and other
@@ -120,6 +177,20 @@ npm run build
 `npx tsc --noEmit` needs the generated route types. Run `npm run build` or
 `npx next typegen` first in a fresh clone, otherwise it reports that
 `LayoutProps` cannot be found.
+
+The mock must never reach production output. After `npm run build` (also with
+`NEXT_PUBLIC_USE_MOCK_API=true`, which only prints a warning):
+
+```bash
+grep -rl "MOCK_SEED_SENTINEL_ELM" .next/static   # must print nothing
+```
+
+CSS Modules use design tokens only (`src/styles/tokens.css`); this must print
+nothing:
+
+```bash
+grep -rnE "#[0-9a-fA-F]{3,6}\b" src --include=*.module.css
+```
 
 ## Troubleshooting
 

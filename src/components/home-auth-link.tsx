@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import styles from "@/app/auth.module.css";
+import styles from "@/app/page.module.css";
+import { ButtonLink } from "@/components/ui/button";
 import { useAuth } from "./auth-provider";
 
 export default function HomeAuthLink() {
@@ -9,7 +9,7 @@ export default function HomeAuthLink() {
 
   if (auth.status === "loading") {
     return (
-      <p className={styles.status} role="status">
+      <p className={styles.muted} role="status">
         Checking your session…
       </p>
     );
@@ -17,15 +17,15 @@ export default function HomeAuthLink() {
 
   if (auth.status === "authenticated") {
     return (
-      <Link href="/dashboard" className={styles.primaryButton} data-testid="home-auth-link">
+      <ButtonLink href="/dashboard" className={styles.homeLink} data-testid="home-auth-link">
         Go to dashboard
-      </Link>
+      </ButtonLink>
     );
   }
 
   return (
-    <Link href="/login" className={styles.primaryButton} data-testid="home-auth-link">
+    <ButtonLink href="/login" className={styles.homeLink} data-testid="home-auth-link">
       Sign in
-    </Link>
+    </ButtonLink>
   );
 }

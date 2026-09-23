@@ -1,0 +1,164 @@
+/*
+ * Design tokens for Employee Leave Management (docs/ui-design.md §3).
+ *
+ * This is the only stylesheet that may contain raw colour values. Components
+ * use these custom properties through their CSS Modules. Media queries cannot
+ * use custom properties, so breakpoints are written as literals in CSS:
+ *   sm 480px · md 768px · lg 1024px · xl 1280px
+ */
+
+:root {
+  color-scheme: light;
+
+  /*
+   * Colours follow the Bitpastel website (bitpastel.com): charcoal text, green
+   * actions, and soft mint, yellow, coral and sky pastels. The exact brand green
+   * (#00a974) is too light for white or body-size text (3.0:1), so buttons and
+   * links use darker shades of it and the brand green is kept for accents.
+   */
+
+  /* Colours: surfaces and text */
+  --color-bg: #f6f8f7;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef3f1;
+  --color-text: #2a2a2a;
+  --color-text-muted: #4f5552;
+  --color-text-subtle: #5c6360;
+  --color-border: #e3e8e6;
+  --color-border-strong: #c9d2ce;
+  --color-border-input: #7d8683;
+
+  /* Colours: brand and focus */
+  --color-brand: #00a974;
+  --color-primary: #00875c;
+  --color-primary-hover: #00704d;
+  --color-primary-subtle: #dcf6eb;
+  --color-primary-subtle-strong: #b9ecd6;
+  --color-primary-text: #00664a;
+  --color-on-primary: #ffffff;
+  --color-link: #00704d;
+  --color-link-hover: #005a3e;
+  --color-focus: #22577a;
+
+  /* Pastel surfaces (StatCard tones, icon circles) */
+  --color-pastel-mint: #dcf6eb;
+  --color-pastel-yellow: #fcf4d7;
+  --color-pastel-coral: #fde3e5;
+  --color-pastel-sky: #e3f4f9;
+  --color-pastel-grey: #f0f0f0;
+
+  /* Colours: feedback */
+  --color-danger: #b42330;
+  --color-danger-hover: #961c27;
+  --color-danger-subtle: #fde3e5;
+  --color-success: #00664a;
+  --color-success-subtle: #d8f5e9;
+  --color-warning: #7a5000;
+  --color-warning-subtle: #fcf4d7;
+  --color-info: #22577a;
+  --color-info-subtle: #e3f4f9;
+  --color-backdrop: rgb(42 42 42 / 0.5);
+
+  /* Status badges (icon + text + border, never colour alone) */
+  --status-pending-fg: #7a5000;
+  --status-pending-bg: #fcf4d7;
+  --status-pending-border: #d9a900;
+  --status-approved-fg: #00664a;
+  --status-approved-bg: #d8f5e9;
+  --status-approved-border: #00a974;
+  --status-rejected-fg: #a61e2b;
+  --status-rejected-bg: #fde3e5;
+  --status-rejected-border: #e0505c;
+  --status-cancelled-fg: #3b3b3c;
+  --status-cancelled-bg: #f0f0f0;
+  --status-cancelled-border: #8c8c8c;
+  --status-active-fg: #00664a;
+  --status-active-bg: #d8f5e9;
+  --status-active-border: #00a974;
+  --status-inactive-fg: #3b3b3c;
+  --status-inactive-bg: #f0f0f0;
+  --status-inactive-border: #8c8c8c;
+
+  /* Legacy aliases (page.module.css and anything not yet migrated) */
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --muted: var(--color-text-muted);
+  --border: var(--color-border-input);
+  --ok: var(--color-success);
+  --error: var(--color-danger);
+
+  /* Typography */
+  /* --font-roboto and --font-source-sans are set by next/font in app/layout.tsx */
+  --font-sans: var(--font-roboto), Roboto, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-heading: var(--font-source-sans), "Source Sans Pro", var(--font-sans);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --leading-xs: 1rem;
+  --text-sm: 0.875rem;
+  --leading-sm: 1.25rem;
+  --text-base: 1rem;
+  --leading-base: 1.5rem;
+  --text-lg: 1.125rem;
+  --leading-lg: 1.75rem;
+  --text-xl: 1.25rem;
+  --leading-xl: 1.75rem;
+  --text-2xl: 1.5rem;
+  --leading-2xl: 2rem;
+  --text-3xl: 1.875rem;
+  --leading-3xl: 2.25rem;
+
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* Spacing (4 px base) */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgb(42 42 42 / 0.06);
+  --shadow-md: 0 4px 12px rgb(42 42 42 / 0.08), 0 1px 3px rgb(42 42 42 / 0.06);
+  --shadow-lg: 0 20px 40px rgb(42 42 42 / 0.18), 0 4px 12px rgb(42 42 42 / 0.08);
+
+  /* Layout */
+  --control-height: 2.75rem;
+  --control-height-sm: 2.25rem;
+  --sidebar-width: 16rem;
+  --topbar-height: 3.5rem;
+  --content-max-width: 75rem;
+  --form-max-width: 40rem;
+  --focus-ring: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-focus);
+
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* z-index scale */
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-topbar: 20;
+  --z-sidebar: 30;
+  --z-drawer-backdrop: 40;
+  --z-drawer: 50;
+  --z-dialog: 60;
+  --z-toast: 70;
+}
