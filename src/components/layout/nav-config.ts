@@ -17,9 +17,8 @@ const prefix = (href: string) => (pathname: string) =>
  * Navigation per role (docs/ui-design.md §4.1). Only the current role's items
  * are shown; this is cosmetic — the API enforces roles.
  *
- * Phase A note: the /leave/** and /admin/{requests,employees,allowances}
- * routes are built in Phases B and C; until then those links reach the
- * not-found page.
+ * Phase B note: the /admin/{requests,employees,allowances} routes are built
+ * in Phase C; until then those links reach the not-found page.
  */
 export const NAV_ITEMS: Record<Role, NavItem[]> = {
   EMPLOYEE: [

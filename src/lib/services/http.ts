@@ -20,7 +20,8 @@ export async function request<T>(
     // purpose: the bundler only drops the import() below — and so never emits
     // the mock chunk — when it sees the inlined NODE_ENV check in this file. A
     // constant imported from another module is not enough (verified with the
-    // MOCK_SEED_SENTINEL_ELM build grep).
+    // seed-sentinel build grep in docs/ui-design.md §5.4; the constant's name is
+    // not written here because source maps embed this comment).
     if (process.env.NODE_ENV !== "production" && process.env.NEXT_PUBLIC_USE_MOCK_API === "true") {
       const { mockFetch } = await import("@/lib/mock");
       return mockFetch<T>(path, options);

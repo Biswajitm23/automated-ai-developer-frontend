@@ -12,8 +12,12 @@ import { useCallback, useMemo } from "react";
 export type UrlParam<T> = {
   /** Turns the raw value (null when absent) into a valid value; invalid input gives the default. */
   parse: (raw: string | null) => T;
-  /** Returns null to remove the key (e.g. for the default value). */
-  serialize: (value: T) => string | null;
+  /**
+   * Returns null to remove the key (e.g. for the default value). Declared with
+   * method syntax on purpose: method parameters are bivariant, so a concrete
+   * UrlParam<number> fits the UrlParam<unknown> slots of UrlSchema.
+   */
+  serialize(value: T): string | null;
 };
 
 export type UrlSchema = Record<string, UrlParam<unknown>>;

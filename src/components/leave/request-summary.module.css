@@ -1,0 +1,14 @@
+/* Reasons and remarks keep the user's line breaks and wrap long words. */
+.longText {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.strong {
+  font-weight: var(--font-semibold);
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
