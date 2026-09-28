@@ -68,7 +68,7 @@ export function AdminAccessCheck() {
     return () => controllerRef.current?.abort();
   }, [ping]);
 
-  if (state.kind === "forbidden") return <AccessDenied />;
+  if (state.kind === "forbidden") return <AccessDenied page />;
   if (state.kind !== "error") return null;
 
   return (

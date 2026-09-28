@@ -6,9 +6,10 @@ import { EmptyState } from "@/components/ui/empty-state";
  * page, or when the API answers 403. Text, role and test ID are unchanged from
  * ELM-002.
  */
-export function AccessDenied() {
+export function AccessDenied({ page = false }: { page?: boolean }) {
   return (
     <EmptyState
+      headingLevel={page ? 1 : 2}
       role="alert"
       data-testid="access-denied"
       tone="danger"

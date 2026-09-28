@@ -21,6 +21,10 @@
 }
 
 .breadcrumbs a {
+  /* At least 24 px tall to tap (WCAG 2.2 target size). */
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5rem;
   color: var(--color-text-muted);
 }
 
