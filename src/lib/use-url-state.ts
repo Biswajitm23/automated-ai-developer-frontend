@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 /**
  * Typed URL query state for filters and pagination (docs/ui-design.md §5.2).
@@ -100,14 +100,26 @@ export function useUrlState<S extends UrlSchema>(schema: S): [UrlValues<S>, SetU
     return result as UrlValues<S>;
   }, [schema, searchParams]);
 
+  // router.replace() lands a render later. Patches sent before then are merged,
+  // so two quick changes (e.g. From, then To) don't overwrite each other.
+  const pending = useRef<Record<string, unknown>>({});
+  useEffect(() => {
+    pending.current = {};
+  }, [searchParams]);
+
   const setValues = useCallback<SetUrlState<S>>(
     (patch) => {
+      const merged: Record<string, unknown> = { ...pending.current, ...patch };
+      // A filter change goes back to page 1, even over a pending page change.
+      const patchKeys = Object.keys(patch);
+      if (patchKeys.some((key) => key !== "page") && !patchKeys.includes("page")) delete merged.page;
+      pending.current = merged;
       const next = new URLSearchParams(searchParams.toString());
-      const keys = Object.keys(patch);
+      const keys = Object.keys(merged);
       for (const key of keys) {
         const param = schema[key];
         if (!param) continue;
-        const serialized = param.serialize((patch as Record<string, unknown>)[key]);
+        const serialized = param.serialize(merged[key]);
         if (serialized === null || serialized === "") next.delete(key);
         else next.set(key, serialized);
       }
