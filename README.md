@@ -111,7 +111,10 @@ Some leave-management endpoints are not in the backend yet. Each group of
 endpoints has an availability flag in `src/lib/services/availability.ts`.
 **Live since ELM-003:** leave types, employee management (**Admin → Employees**:
 add, edit, deactivate/reactivate, with an optional Employee ID) and allowances.
-Leave requests, balances and the admin dashboard still use the flags below.
+**Live since ELM-005:** the employee's balances, **Apply for leave** (with the
+server-side preview and duplicate-submission protection), their request list
+and request details. Cancelling, admin decisions and the admin request
+dashboard still use the flags below.
 While a flag is `false`, pages show a plain **"Nothing to show yet"** and
 actions say **"This can't be done right now. Please try again later."** (no
 technical wording, at the owner's request). For design and
