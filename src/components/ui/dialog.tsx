@@ -154,8 +154,10 @@ export function Dialog({
         requestClose();
       }}
       onClose={() => {
-        // The browser closed it anyway: keep the parent's state in sync.
-        if (latest.current.open) latest.current.onClose();
+        // The browser closed it anyway: keep the parent's state in sync. The event
+        // is async, so skip it when the dialog was reopened meanwhile (Strict Mode
+        // runs the effect twice for a dialog mounted open: close, then showModal).
+        if (latest.current.open && !dialogRef.current?.open) latest.current.onClose();
       }}
       onMouseDown={(event) => {
         pointerDownOnBackdrop.current = event.target === event.currentTarget;
