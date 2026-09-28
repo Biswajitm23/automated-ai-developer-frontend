@@ -24,8 +24,11 @@
 }
 
 .title {
+  /* Same look whether it is an h1 (full-page state) or an h2/h3. */
+  font-family: var(--font-sans);
   font-size: var(--text-lg);
   line-height: var(--leading-lg);
+  letter-spacing: normal;
 }
 
 .description {

@@ -8,7 +8,8 @@ export type EmptyStateProps = Omit<HTMLAttributes<HTMLElement>, "title"> & {
   description?: ReactNode;
   action?: ReactNode;
   tone?: "neutral" | "info" | "danger";
-  headingLevel?: 2 | 3;
+  /** 1 when the state replaces the whole page (no PageHeader above it). */
+  headingLevel?: 1 | 2 | 3;
 };
 
 /** Centred message in a card: no data, not found, access denied, not available. */
@@ -22,7 +23,7 @@ export function EmptyState({
   className,
   ...props
 }: EmptyStateProps) {
-  const Heading = headingLevel === 2 ? "h2" : "h3";
+  const Heading = headingLevel === 1 ? "h1" : headingLevel === 2 ? "h2" : "h3";
   return (
     <section {...props} className={[styles.empty, tone !== "neutral" ? styles[tone] : null, className].filter(Boolean).join(" ")}>
       <span className={styles.iconWrap}>

@@ -84,6 +84,6 @@ export default function RequireAuth({ children }: RequireAuthProps) {
 export function RequireRole({ role, children }: { role: Role; children: ReactNode }) {
   const auth = useAuth();
   if (auth.status !== "authenticated") return null;
-  if (auth.user.role !== role) return <AccessDenied />;
+  if (auth.user.role !== role) return <AccessDenied page />;
   return <>{children}</>;
 }
