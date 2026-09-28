@@ -9,13 +9,15 @@
 }
 
 .label {
-  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  font-weight: var(--font-medium);
   color: var(--color-text);
 }
 
 .marker {
   font-weight: var(--font-regular);
-  font-size: var(--text-sm);
+  font-size: var(--text-caption);
   color: var(--color-text-muted);
 }
 
@@ -26,8 +28,8 @@
 }
 
 .hint {
-  font-size: var(--text-sm);
-  line-height: var(--leading-sm);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
   color: var(--color-text-muted);
 }
 
@@ -53,9 +55,13 @@
   border-radius: var(--radius-md);
   background: var(--color-surface);
   color: var(--color-text);
-  font-size: var(--text-base);
+  font-size: var(--text-control);
   line-height: var(--leading-base);
   transition: border-color var(--duration-fast) var(--easing-standard);
+}
+
+.control:hover:not(:disabled, :focus-visible) {
+  border-color: var(--color-text-muted);
 }
 
 .control::placeholder {

@@ -57,10 +57,12 @@
   font-size: var(--text-2xl);
   line-height: var(--leading-2xl);
   font-weight: var(--font-bold);
+  letter-spacing: var(--tracking-tight);
   overflow-wrap: anywhere;
 }
 
 .description {
+  max-width: 70ch;
   color: var(--color-text-muted);
 }
 
