@@ -139,12 +139,6 @@ function LeaveRequestDetails({ id }: { id: string }) {
         <LoadError error={state.error} onRetry={state.reload} what="the latest version of this request" />
       )}
 
-      {canCancel && !CANCEL_AVAILABLE && (
-        <Alert variant="info" data-testid="cancel-not-available">
-          {ENDPOINTS.cancelRequest.feature} isn&apos;t available yet ({ENDPOINTS.cancelRequest.card}).
-        </Alert>
-      )}
-
       <div ref={summaryRef} tabIndex={-1} aria-busy={state.status === "loading" || undefined}>
         <RequestSummary request={request} leaveTypes={leaveTypes} />
       </div>
