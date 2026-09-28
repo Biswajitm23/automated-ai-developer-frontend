@@ -116,6 +116,7 @@ function EditEmployee({ id }: { id: string }) {
       last_name: values.last_name,
       email: values.email,
       department: values.department,
+      employee_code: values.employee_code || null,
     });
     setUpdated(result);
     setFormVersion((version) => version + 1);
@@ -196,11 +197,11 @@ function EditEmployee({ id }: { id: string }) {
       )}
 
       <div className={styles.detailGrid}>
-        <Card title="Details" padding="lg">
+        <Card>
           <EmployeeForm
             key={`${current.id}-${formVersion}`}
             mode="edit"
-            initial={current}
+            initial={{ ...current, employee_code: current.employee_code ?? "" }}
             departments={departments}
             submitLabel="Save changes"
             submittingLabel="Saving…"

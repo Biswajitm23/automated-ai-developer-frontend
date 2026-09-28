@@ -49,7 +49,12 @@ export const SEED_DEPARTMENTS = [
   "Operations",
 ];
 
-export const SEED_EMPLOYEES: Omit<Employee, "created_at" | "updated_at" | "full_name">[] = [
+/** An employee before the server-built fields are added. */
+export type EmployeeSeed = Omit<Employee, "created_at" | "updated_at" | "full_name" | "employee_code"> & {
+  employee_code?: string | null;
+};
+
+export const SEED_EMPLOYEES: EmployeeSeed[] = [
   { id: 1001, username: "aarav.sharma", first_name: "Aarav", last_name: "Sharma", email: "aarav.sharma@example.com", department: "Engineering", is_active: true },
   { id: 1002, username: "venkata.chakravarthy", first_name: "Venkata Satya Narayana Subrahmanyam", last_name: "Chakravarthy-Ramachandran", email: "venkata.satyanarayana.subrahmanyam.chakravarthy@example.com", department: "Research and Development — Applied Machine Learning Platform Group", is_active: true },
   { id: 1003, username: "priya.nair", first_name: "Priya", last_name: "Nair", email: "priya.nair@example.com", department: "Human Resources", is_active: true },
@@ -180,12 +185,15 @@ function rangeEnd(start: ISODate, days: number): ISODate {
   return end;
 }
 
-export function toEmployee(
-  base: Omit<Employee, "created_at" | "updated_at" | "full_name">,
-  createdAt: ISODateTime,
-): Employee {
+export function toEmployee(base: EmployeeSeed, createdAt: ISODateTime): Employee {
   const fullName = `${base.first_name} ${base.last_name}`.trim() || base.username;
-  return { ...base, full_name: fullName, created_at: createdAt, updated_at: createdAt };
+  return {
+    ...base,
+    employee_code: base.employee_code ?? null,
+    full_name: fullName,
+    created_at: createdAt,
+    updated_at: createdAt,
+  };
 }
 
 export function employeeRef(employee: Employee): LeaveRequest["employee"] {

@@ -334,28 +334,36 @@ Tokens: `--status-pending-fg/bg/border`, `--status-approved-*`,
 
 ### 3.2 Typography
 
-The website's fonts: **Roboto** (400, 500, 700) for body text and controls,
-and **Source Sans 3** (600, 700; the current name of Source Sans Pro) for
-headings, the product name and stat values. Both are loaded with `next/font/google`
-in `src/app/layout.tsx`, which self-hosts them: `next build` downloads them
-once, and browsers never contact Google. The loader sets `--font-roboto` and
-`--font-source-sans` on `<html>`; the tokens are
+The website's fonts: **Roboto** (variable, 400–700) for body text, controls,
+card and section headings, and **Source Sans 3** (600, 700; the current name of
+Source Sans Pro) only for large display text: the page title (`h1`), the
+product name and stat values. Keeping Source Sans to large sizes stops the two
+similar faces from sitting side by side at the same size. Both are loaded with
+`next/font/google` in `src/app/layout.tsx`, which self-hosts them: `next build`
+downloads them once, and browsers never contact Google. The loader sets
+`--font-roboto` and `--font-source-sans` on `<html>`; the tokens are
 `--font-sans: var(--font-roboto), Roboto, system-ui, …` and
 `--font-heading: var(--font-source-sans), "Source Sans Pro", var(--font-sans)`.
 `--font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`.
 Numbers in tables and stat cards use `font-variant-numeric: tabular-nums`.
 
+One step per job, so hierarchy comes from size and weight rather than from
+many near-identical sizes:
+
 | Token | Size | Line height | Use |
 |---|---|---|---|
 | `--text-xs` | 0.75rem (12 px) | 1rem | Badge counts only (never body copy) |
-| `--text-sm` | 0.875rem (14 px) | 1.25rem | Table cells, hints, badges, captions |
-| `--text-base` | 1rem (16 px) | 1.5rem | Body, inputs (16 px avoids iOS zoom) |
-| `--text-lg` | 1.125rem (18 px) | 1.75rem | Card titles, dialog titles |
+| `--text-caption` | 0.8125rem (13 px) | 1.125rem | Field hints, table headers, status badges, secondary lines (username under a name) |
+| `--text-sm` | 0.875rem (14 px) | 1.25rem | Field labels (medium), table cells, description-list terms |
+| `--text-base` | 0.9375rem (15 px) | 1.5rem | Body, buttons |
+| `--text-control` | 16 px, 15 px from 768 px | 1.5rem | Inputs and selects (16 px on phones avoids iOS zoom) |
+| `--text-lg` | 1.0625rem (17 px) | 1.5rem | Card titles, table captions, form section legends, dialog titles |
 | `--text-xl` | 1.25rem (20 px) | 1.75rem | Section headings (h2) |
-| `--text-2xl` | 1.5rem (24 px) | 2rem | Page title (h1) on mobile |
-| `--text-3xl` | 1.875rem (30 px) | 2.25rem | Page title (h1) ≥768 px, stat values |
+| `--text-2xl` | 1.625rem (26 px) | 2rem | Page title (h1) on mobile |
+| `--text-3xl` | 2rem (32 px) | 2.5rem | Page title (h1) ≥768 px, stat values |
 
 Weights: `--font-regular: 400`, `--font-medium: 500`, `--font-semibold: 600`, `--font-bold: 700`.
+Page titles use `--tracking-tight` (−0.015em).
 Heading order: one `h1` per page (in `PageHeader`), `h2` for cards/sections, `h3` inside cards.
 
 ### 3.3 Spacing, radii, shadows, layout
@@ -953,8 +961,8 @@ These are for the backend cards to implement. Conventions follow ELM-002:
 
 | Method + path | Request | Success | Errors |
 |---|---|---|---|
-| `GET /api/admin/employees/` | Query: `q` (matches name, email, username or department; case-insensitive contains), `status` = `active`\|`inactive`\|`all` (default `all`), `ordering` = `name` (default) \| `-created_at`, `page`, `page_size` | `200 Paginated<Employee>` | 401, 403 |
-| `POST /api/admin/employees/` | `EmployeeCreateInput` | `201 Employee` (never contains the password). Creates a `User` + `Profile(role=EMPLOYEE, department)` and runs Django password validators | 400 e.g. `{"email": ["An employee with this email already exists."]}`, `{"username": ["A user with that username already exists."]}`, `{"password": ["This password is too short. It must contain at least 8 characters."]}`, `{"department": ["This field may not be blank."]}`. 401, 403 |
+| `GET /api/admin/employees/` | Query: `q` (matches name, email, username, department or Employee ID; case-insensitive contains), `status` = `active`\|`inactive`\|`all` (default `all`), `ordering` = `name` (default) \| `-created_at`, `page`, `page_size` | `200 Paginated<Employee>` | 401, 403 |
+| `POST /api/admin/employees/` | `EmployeeCreateInput` | `201 Employee` (never contains the password). Creates a `User` + `Profile(role=EMPLOYEE, department)` and runs Django password validators | 400 e.g. `{"email": ["An account with this email address already exists."]}`, `{"employee_code": ["An employee with this Employee ID already exists."]}`, `{"username": ["A user with that username already exists."]}`, `{"password": ["This password is too short. It must contain at least 8 characters."]}`, `{"department": ["This field may not be blank."]}`. 401, 403 |
 | `GET /api/admin/employees/{id}/` | – | `200 Employee` | 404 (also for admin accounts: only role EMPLOYEE is listed and managed), 401, 403 |
 | `PATCH /api/admin/employees/{id}/` | `EmployeeUpdateInput` (role, username, password and `is_active` are read-only here) | `200 Employee` | 400 (duplicate email, blank fields), 404, 401, 403 |
 | `POST /api/admin/employees/{id}/deactivate/` | `{}` | `200 Employee` (`is_active: false`). Idempotent. Sessions of that user are invalidated (the existing 401 behaviour for inactive users). Leave history is kept. **Pending requests stay Pending** and can still be decided (see [§9](#9-known-limitations-assumptions-and-open-questions)) | 404, 401, 403 |
@@ -964,6 +972,12 @@ These are for the backend cards to implement. Conventions follow ELM-002:
 
 Employees have **no** endpoints to change their role, allowance or profile
 (ELM-003 acceptance).
+
+**Implemented in ELM-003** (backend `accounts/employees.py`, `leave/`). Additions
+to the proposal: an optional `employee_code` (company Employee ID such as
+`BP081`) on `Employee`, create and PATCH, stored upper-case and unique when set;
+email uniqueness covers admin accounts too. Until ELM-005 adds leave requests,
+`approved` and `pending` in allowance rows are always 0.
 
 ### 6.3 ELM-006: employee balances and history
 

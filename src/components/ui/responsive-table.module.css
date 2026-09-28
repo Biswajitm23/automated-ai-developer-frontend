@@ -17,7 +17,8 @@
   text-align: start;
   padding-bottom: var(--space-3);
   font-weight: var(--font-semibold);
-  font-size: var(--text-base);
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
 }
 
 .caption:focus-visible {
@@ -51,6 +52,7 @@
 .table td {
   display: grid;
   grid-template-columns: minmax(6.5rem, 40%) 1fr;
+  justify-items: start;
   gap: var(--space-3);
   padding: var(--space-1) 0;
   overflow-wrap: anywhere;
@@ -87,13 +89,13 @@
 @media (min-width: 768px) {
   .wrapper {
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-xl);
     background: var(--color-surface);
     box-shadow: var(--shadow-sm);
   }
 
   .caption {
-    padding: var(--space-4) var(--space-4) var(--space-2);
+    padding: var(--space-5) var(--space-6) var(--space-3);
   }
 
   .table thead {
@@ -130,9 +132,23 @@
     margin: 0;
     border-bottom: 1px solid var(--color-border);
     text-align: start;
-    vertical-align: top;
+    vertical-align: middle;
     font-size: var(--text-sm);
     line-height: var(--leading-sm);
+  }
+
+  .table th:first-child,
+  .table td:first-child {
+    padding-inline-start: var(--space-6);
+  }
+
+  .table th:last-child,
+  .table td:last-child {
+    padding-inline-end: var(--space-6);
+  }
+
+  .table td {
+    padding-block: var(--space-4);
   }
 
   .table td.primary {
@@ -144,10 +160,18 @@
   }
 
   .table th {
+    padding-block: var(--space-2);
+    border-top: 1px solid var(--color-border);
     background: var(--color-surface-muted);
     color: var(--color-text-muted);
-    font-weight: var(--font-semibold);
+    font-size: var(--text-caption);
+    line-height: var(--leading-caption);
+    font-weight: var(--font-medium);
     white-space: nowrap;
+  }
+
+  .table tbody tr {
+    transition: background-color var(--duration-fast) var(--easing-standard);
   }
 
   .table tbody tr:last-child td {

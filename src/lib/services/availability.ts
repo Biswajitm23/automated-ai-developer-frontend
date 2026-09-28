@@ -19,9 +19,9 @@ export type EndpointGroup =
 export type EndpointInfo = { available: boolean; card: string; feature: string };
 
 export const ENDPOINTS: Record<EndpointGroup, EndpointInfo> = {
-  leaveTypes: { available: false, card: "ELM-003", feature: "Leave types" },
-  adminEmployees: { available: false, card: "ELM-003", feature: "Employee management" },
-  adminAllowances: { available: false, card: "ELM-003", feature: "Allowance management" },
+  leaveTypes: { available: true, card: "ELM-003", feature: "Leave types" },
+  adminEmployees: { available: true, card: "ELM-003", feature: "Employee management" },
+  adminAllowances: { available: true, card: "ELM-003", feature: "Allowance management" },
   myBalances: { available: false, card: "ELM-006", feature: "Leave balances" },
   myRequests: { available: false, card: "ELM-005/006", feature: "Leave requests" },
   cancelRequest: { available: false, card: "ELM-008", feature: "Cancelling requests" },

@@ -23,6 +23,7 @@ export type Employee = {
   full_name: string; // server-built, "first last" or username
   email: string; // unique (case-insensitive)
   department: string;
+  employee_code: string | null; // company Employee ID, e.g. "BP081"; unique, upper-case
   is_active: boolean;
   created_at: ISODateTime;
   updated_at: ISODateTime;
@@ -37,10 +38,11 @@ export type EmployeeCreateInput = {
   department: string;
   username: string;
   password: string; // write-only, never returned
+  employee_code?: string | null; // optional; "" or null = none
 };
 
 export type EmployeeUpdateInput = Partial<
-  Pick<Employee, "first_name" | "last_name" | "email" | "department">
+  Pick<Employee, "first_name" | "last_name" | "email" | "department" | "employee_code">
 >;
 
 /** Allowance row as the admin sees it (balance included so limits can be shown). */
