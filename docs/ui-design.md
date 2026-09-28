@@ -953,8 +953,8 @@ These are for the backend cards to implement. Conventions follow ELM-002:
 
 | Method + path | Request | Success | Errors |
 |---|---|---|---|
-| `GET /api/admin/employees/` | Query: `q` (matches name, email, username or department; case-insensitive contains), `status` = `active`\|`inactive`\|`all` (default `all`), `ordering` = `name` (default) \| `-created_at`, `page`, `page_size` | `200 Paginated<Employee>` | 401, 403 |
-| `POST /api/admin/employees/` | `EmployeeCreateInput` | `201 Employee` (never contains the password). Creates a `User` + `Profile(role=EMPLOYEE, department)` and runs Django password validators | 400 e.g. `{"email": ["An employee with this email already exists."]}`, `{"username": ["A user with that username already exists."]}`, `{"password": ["This password is too short. It must contain at least 8 characters."]}`, `{"department": ["This field may not be blank."]}`. 401, 403 |
+| `GET /api/admin/employees/` | Query: `q` (matches name, email, username, department or Employee ID; case-insensitive contains), `status` = `active`\|`inactive`\|`all` (default `all`), `ordering` = `name` (default) \| `-created_at`, `page`, `page_size` | `200 Paginated<Employee>` | 401, 403 |
+| `POST /api/admin/employees/` | `EmployeeCreateInput` | `201 Employee` (never contains the password). Creates a `User` + `Profile(role=EMPLOYEE, department)` and runs Django password validators | 400 e.g. `{"email": ["An account with this email address already exists."]}`, `{"employee_code": ["An employee with this Employee ID already exists."]}`, `{"username": ["A user with that username already exists."]}`, `{"password": ["This password is too short. It must contain at least 8 characters."]}`, `{"department": ["This field may not be blank."]}`. 401, 403 |
 | `GET /api/admin/employees/{id}/` | – | `200 Employee` | 404 (also for admin accounts: only role EMPLOYEE is listed and managed), 401, 403 |
 | `PATCH /api/admin/employees/{id}/` | `EmployeeUpdateInput` (role, username, password and `is_active` are read-only here) | `200 Employee` | 400 (duplicate email, blank fields), 404, 401, 403 |
 | `POST /api/admin/employees/{id}/deactivate/` | `{}` | `200 Employee` (`is_active: false`). Idempotent. Sessions of that user are invalidated (the existing 401 behaviour for inactive users). Leave history is kept. **Pending requests stay Pending** and can still be decided (see [§9](#9-known-limitations-assumptions-and-open-questions)) | 404, 401, 403 |
@@ -964,6 +964,12 @@ These are for the backend cards to implement. Conventions follow ELM-002:
 
 Employees have **no** endpoints to change their role, allowance or profile
 (ELM-003 acceptance).
+
+**Implemented in ELM-003** (backend `accounts/employees.py`, `leave/`). Additions
+to the proposal: an optional `employee_code` (company Employee ID such as
+`BP081`) on `Employee`, create and PATCH, stored upper-case and unique when set;
+email uniqueness covers admin accounts too. Until ELM-005 adds leave requests,
+`approved` and `pending` in allowance rows are always 0.
 
 ### 6.3 ELM-006: employee balances and history
 

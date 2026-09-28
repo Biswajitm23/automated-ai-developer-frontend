@@ -68,6 +68,7 @@ type EmployeeFields = {
   department?: string;
   username?: string;
   password?: string;
+  employee_code?: string | null;
 };
 
 /** DRF-like validation for create (all required fields) or PATCH (only given fields). */
@@ -146,6 +147,17 @@ function validateEmployee(
     if (messages.length > 0) errors.password = messages;
   }
 
+  if ("employee_code" in body) {
+    const code = text(body.employee_code).toUpperCase();
+    if (code.length > 20) {
+      errors.employee_code = ["Ensure this field has no more than 20 characters."];
+    } else if (code && db.employees.some((employee) => employee.id !== selfId && employee.employee_code === code)) {
+      errors.employee_code = ["An employee with this Employee ID already exists."];
+    } else {
+      clean.employee_code = code || null;
+    }
+  }
+
   if (Object.keys(errors).length > 0) throw new ApiError(400, null, errors);
   return clean;
 }
@@ -220,7 +232,7 @@ function listEmployees(ctx: MockContext) {
       if (status === "active" && !employee.is_active) return false;
       if (status === "inactive" && employee.is_active) return false;
       if (!q) return true;
-      return [employee.full_name, employee.email, employee.username, employee.department].some((value) =>
+      return [employee.full_name, employee.email, employee.username, employee.department, employee.employee_code ?? ""].some((value) =>
         value.toLowerCase().includes(q),
       );
     })
@@ -245,6 +257,7 @@ function createEmployee(ctx: MockContext): Employee {
     full_name: `${firstName} ${lastName}`.trim() || (clean.username ?? ""),
     email: clean.email ?? "",
     department: clean.department ?? "",
+    employee_code: clean.employee_code ?? null,
     is_active: true,
     created_at: now,
     updated_at: now,
@@ -261,6 +274,7 @@ function updateEmployee(ctx: MockContext): Employee {
   if (clean.last_name !== undefined) employee.last_name = clean.last_name;
   if (clean.email !== undefined) employee.email = clean.email;
   if (clean.department !== undefined) employee.department = clean.department;
+  if (clean.employee_code !== undefined) employee.employee_code = clean.employee_code;
   employee.full_name = `${employee.first_name} ${employee.last_name}`.trim() || employee.username;
   employee.updated_at = toAppZoneDateTime();
   syncEmployeeRefs(ctx.db, employee);

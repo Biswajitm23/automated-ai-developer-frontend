@@ -65,6 +65,12 @@ const COLUMNS: TableColumn<Employee>[] = [
     cell: (employee) => <span className={styles.wrap}>{employee.department}</span>,
   },
   {
+    key: "employee_code",
+    header: "Employee ID",
+    hideOnMobile: true,
+    cell: (employee) => <span className={styles.wrap}>{employee.employee_code ?? "—"}</span>,
+  },
+  {
     key: "username",
     header: "Username",
     hideOnMobile: true,
@@ -120,7 +126,7 @@ export default function EmployeeListView() {
       >
         <SearchField
           label="Search"
-          hint="Name, email, username or department."
+          hint="Name, email, username, department or Employee ID."
           value={q}
           onSearch={(value) => setUrl({ q: value })}
           data-testid="employee-search"

@@ -18,11 +18,20 @@ export type EmployeeFormValues = {
   last_name: string;
   email: string;
   department: string;
+  employee_code: string;
   username: string;
   password: string;
 };
 
-const FIELD_ORDER = ["first_name", "last_name", "email", "department", "username", "password"] as const;
+const FIELD_ORDER = [
+  "first_name",
+  "last_name",
+  "email",
+  "department",
+  "employee_code",
+  "username",
+  "password",
+] as const;
 type FieldName = (typeof FIELD_ORDER)[number];
 type FieldErrors = Partial<Record<FieldName, string>>;
 
@@ -32,6 +41,7 @@ const MAX_LENGTH: Record<FieldName, number> = {
   last_name: 150,
   email: 254,
   department: 100,
+  employee_code: 20,
   username: 150,
   password: 128,
 };
@@ -42,6 +52,7 @@ const LABELS: Record<FieldName, string> = {
   last_name: "Last name",
   email: "Email",
   department: "Department",
+  employee_code: "Employee ID",
   username: "Username",
   password: "Initial password",
 };
@@ -62,6 +73,9 @@ function validate(values: EmployeeFormValues, mode: "create" | "edit"): FieldErr
   if (!email) errors.email = "Enter an email address.";
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Enter a valid email address, like name@example.com.";
   if (!department) errors.department = "Enter a department.";
+  if (values.employee_code.trim() && !/^[A-Za-z0-9-]+$/.test(values.employee_code.trim())) {
+    errors.employee_code = "Use only letters, numbers and hyphens, like BP081.";
+  }
 
   if (mode === "create") {
     if (!username) errors.username = "Enter a username.";
@@ -130,6 +144,7 @@ export function EmployeeForm({
     last_name: initial?.last_name ?? "",
     email: initial?.email ?? "",
     department: initial?.department ?? "",
+    employee_code: initial?.employee_code ?? "",
     username: "",
     password: "",
   });
@@ -185,6 +200,7 @@ export function EmployeeForm({
         last_name: values.last_name.trim(),
         email: values.email.trim(),
         department: values.department.trim(),
+        employee_code: values.employee_code.trim().toUpperCase(),
         username: values.username.trim(),
         password: values.password,
       });
@@ -303,6 +319,20 @@ export function EmployeeForm({
             ))}
           </datalist>
         )}
+        <TextField
+          id={fieldId("employee_code")}
+          label={LABELS.employee_code}
+          showOptional
+          autoComplete="off"
+          autoCapitalize="characters"
+          spellCheck={false}
+          hint="The company's employee number, like BP081. Must be unique."
+          value={values.employee_code}
+          error={errorFor("employee_code")}
+          onChange={(event) => change("employee_code", event.target.value)}
+          onBlur={() => blur("employee_code")}
+          data-testid="employee-code"
+        />
       </fieldset>
 
       {mode === "create" && (

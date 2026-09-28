@@ -17,6 +17,7 @@ import {
   createGeneratorContext,
   generateRequestsFor,
   toEmployee,
+  type EmployeeSeed,
 } from "./seed";
 
 export type MockStore = {
@@ -101,7 +102,7 @@ export function ensureEmployeeForUser(db: MockStore, user: User): Employee {
   return employee;
 }
 
-function fromUser(user: User): Omit<Employee, "created_at" | "updated_at" | "full_name"> {
+function fromUser(user: User): EmployeeSeed {
   return {
     id: user.id,
     username: user.username,
