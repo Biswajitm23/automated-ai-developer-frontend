@@ -5,7 +5,7 @@ import { useEffect, type ReactNode } from "react";
 import { AccessDenied } from "@/components/states/access-denied";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Loader } from "@/components/ui/loader";
 import type { Role } from "@/lib/auth";
 import { useAuth } from "./auth-provider";
 import styles from "./require-auth.module.css";
@@ -42,13 +42,7 @@ export default function RequireAuth({ children }: RequireAuthProps) {
   if (auth.status === "loading") {
     return (
       <main className={styles.page} aria-busy="true">
-        <p className={styles.status} role="status">
-          Checking your session…
-        </p>
-        <div className={styles.skeleton} aria-hidden="true">
-          <Skeleton variant="text" width="14rem" height="2rem" />
-          <Skeleton variant="rect" height="8rem" />
-        </div>
+        <Loader label="Checking your session…" size="lg" fullHeight />
       </main>
     );
   }
@@ -74,9 +68,7 @@ export default function RequireAuth({ children }: RequireAuthProps) {
   if (auth.status === "unauthenticated") {
     return (
       <main className={styles.page}>
-        <p className={styles.status} role="status">
-          Redirecting to sign in…
-        </p>
+        <Loader label="Redirecting to sign in…" size="lg" fullHeight />
       </main>
     );
   }

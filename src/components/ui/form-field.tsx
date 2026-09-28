@@ -51,7 +51,12 @@ export function FormField({
     <div className={[styles.field, className].filter(Boolean).join(" ")}>
       <label htmlFor={id} className={styles.label}>
         {label}
-        {required && <span className={styles.marker}> (required)</span>}
+        {/* The input carries aria-required, so the asterisk is only visual. */}
+        {required && (
+          <span className={styles.required} aria-hidden="true">
+            *
+          </span>
+        )}
         {!required && showOptional && <span className={styles.marker}> Optional</span>}
       </label>
       {hint && (

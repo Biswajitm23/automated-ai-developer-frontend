@@ -42,7 +42,8 @@ on the same hostname (`http://localhost:8000`). See
 | Route | Access | Purpose |
 |---|---|---|
 | `/` | Public | Redirects to `/login`; signed-in users continue from there to `/dashboard` |
-| `/login` | Public | Sign-in form. Accepts `?next=/some/path` (same-site paths only) |
+| `/login` | Public | Sign-in form with **Remember me** and a **Forgot password?** link. Accepts `?next=/some/path` (same-site paths only) |
+| `/forgot-password` | Public | Three steps: email → 6-digit code from the email → new password. Then back to `/login` |
 | `/dashboard` | Signed-in users | Shows the signed-in user and their role (interim; the employee dashboard arrives in ELM-UI-001 Phase B) |
 | `/admin` | Role `ADMIN` | Confirms administrator access with `GET /api/admin/ping/`. Employees see "Access denied" |
 | anything else | Any | "Page not found" card (`src/app/not-found.tsx`), e.g. `/register` |
@@ -69,11 +70,18 @@ and what they may do. The frontend only reflects its answers:
 2. Before every `POST` the app fetches a fresh CSRF token from
    `GET /api/auth/csrf/` and sends it in the `X-CSRFToken` header. All requests
    use `credentials: "include"` so the browser sends the session cookie.
-3. `POST /api/auth/login/` with username and password. A wrong password, an
-   unknown user and an inactive account all get the same message:
-   "Invalid username or password." Too many attempts return `429`.
-4. `POST /api/auth/logout/` ends the server-side session. The app then clears
-   its state and goes to `/login`.
+3. `POST /api/auth/login/` with username, password and `remember_me`. A wrong
+   password, an unknown user and an inactive account all get the same message:
+   "Invalid username or password." (shown as an error toast). Too many attempts
+   return `429`. With **Remember me** the session lasts 30 days; without it, it
+   ends when the browser closes (and after 8 hours at most).
+4. **Log out** first asks "Are you sure you want to logout?". On **Yes, log
+   out**, `POST /api/auth/logout/` ends the server-side session; the app clears
+   its state, goes to `/login` and shows "You have been signed out."
+5. **Forgot password** calls `POST /api/auth/password-reset/request/`,
+   `…/verify/` and `…/confirm/`. Locally the backend prints the email with the
+   code in its `runserver` console. The code boxes accept paste, and **Resend
+   code** unlocks after 60 seconds.
 
 Protected pages (`src/app/(protected)/`) redirect signed-out visitors to
 `/login?next=<page>` and return there after sign-in. Any `401` from the API
@@ -150,8 +158,8 @@ employee you can deactivate (Django admin, untick **Active**).
 | Acceptance criterion | Steps | Expected |
 |---|---|---|
 | Valid credentials allow login | Sign in at `/login` as the admin, then as the employee | Lands on `/dashboard` showing the username and role (Administrator / Employee) |
-| Invalid credentials show a clear error | Submit a wrong password; submit the form empty | "Invalid username or password." alert, password cleared; empty fields show "Enter your username." / "Enter your password." without a request |
-| Logout ends access to protected resources | Click **Log out**, then open `/dashboard` and press Back | Sent to `/login`; `/dashboard` redirects to `/login?next=%2Fdashboard`; `GET /api/auth/me/` returns 401 |
+| Invalid credentials show a clear error | Submit a wrong password; submit the form empty | "Invalid username or password." error toast, password cleared; empty fields show "Enter your username." / "Enter your password." without a request |
+| Logout ends access to protected resources | Click **Log out**, confirm with **Yes, log out** (**Cancel** keeps you signed in), then open `/dashboard` and press Back | Sent to `/login`; `/dashboard` redirects to `/login?next=%2Fdashboard`; `GET /api/auth/me/` returns 401 |
 | Employees cannot access admin APIs or pages | As the employee, open `/admin` | "Access denied" panel, no admin links in the navigation; `GET /api/admin/ping/` returns 403 |
 | Admin access (control) | As the admin, open `/admin` | The admin dashboard loads. The server check runs silently: no message when it passes, "Access denied" on a 403, and a plain error with **Try again** if it fails |
 | Inactive accounts cannot access protected resources | Deactivate a signed-in employee, then reload or refocus the tab; try signing in again | Sent to `/login`; sign-in shows the same generic error |

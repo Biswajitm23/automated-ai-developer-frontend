@@ -19,6 +19,12 @@
   color: var(--color-text-muted);
 }
 
+.required {
+  margin-left: 0.2em;
+  font-weight: var(--font-semibold);
+  color: var(--color-danger);
+}
+
 .hint {
   font-size: var(--text-sm);
   line-height: var(--leading-sm);

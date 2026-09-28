@@ -39,11 +39,16 @@ const ICONS: Record<ToastVariant, IconName> = {
 const DEFAULT_DURATION_MS = 5000;
 
 /**
- * Holds the toast stack. Mounted in the protected layout (above the shell), so
- * a toast survives router.push. Toasts are never the only feedback for errors.
+ * Holds the toast stack. Mounted in the root layout, so a toast survives
+ * router.push and redirects between the sign-in pages and the app (for
+ * example "You have been signed out" after logout).
+ *
+ * The visible stack is not a live region; each message is announced through a
+ * visually hidden region instead: errors assertively, everything else politely.
  */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [announcements, setAnnouncements] = useState({ polite: "", assertive: "" });
   const nextId = useRef(1);
 
   const dismiss = useCallback((id: number) => {
@@ -59,6 +64,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     };
     // Keep at most 4 toasts on screen.
     setToasts((current) => [...current.slice(-3), item]);
+    // A trailing id-dependent space makes a repeated identical message announce again.
+    const text = `${item.message}${item.id % 2 ? "" : "\u00a0"}`;
+    setAnnouncements(item.variant === "error" ? { polite: "", assertive: text } : { polite: text, assertive: "" });
   }, []);
 
   const value = useMemo(() => ({ toast }), [toast]);
@@ -66,13 +74,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className={styles.region} aria-live="polite" aria-relevant="additions text">
+      <div className="visually-hidden" aria-live="polite" aria-atomic="true">
+        {announcements.polite}
+      </div>
+      <div className="visually-hidden" aria-live="assertive" aria-atomic="true">
+        {announcements.assertive}
+      </div>
+      <section className={styles.region} aria-label="Notifications">
         <ol className={styles.stack} role="list">
           {toasts.map((item) => (
             <ToastView key={item.id} item={item} onDismiss={dismiss} />
           ))}
         </ol>
-      </div>
+      </section>
     </ToastContext.Provider>
   );
 }
@@ -109,6 +123,14 @@ function ToastView({ item, onDismiss }: { item: ToastItem; onDismiss: (id: numbe
         label="Dismiss notification"
         size="sm"
         onClick={() => onDismiss(item.id)}
+      />
+      <span
+        className={styles.progress}
+        aria-hidden="true"
+        style={{
+          animationDuration: `${item.durationMs}ms`,
+          animationPlayState: paused ? "paused" : "running",
+        }}
       />
     </li>
   );

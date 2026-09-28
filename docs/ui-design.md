@@ -69,7 +69,7 @@ Legend for states: **L** loading skeleton, **E** empty, **F** no filter results,
 | 1 | Login | `/login` | Public | ELM-002, UI-001 | `LoginForm`, `Card`, `TextField`, `Button`, `Alert` | L (session check), V, S, X (400/403 CSRF/429/network), "already signed in" redirect |
 | 2 | Access denied | inline panel on any role-restricted route | Signed-in, wrong role | ELM-002, UI-001 | `AccessDenied` (built on `EmptyState`) | Static. Rendered in place and keeps the URL |
 | 3 | Page not found | `app/not-found.tsx` (unmatched URLs), plus `NotFoundPanel` in the shell (missing or foreign records) | Any | UI-001 | `NotFoundPage`, `NotFoundPanel` | Static |
-| 4 | App layout + account menu | `(protected)/layout.tsx` | Signed-in | ELM-002, UI-001 | `AppShell`, `Sidebar`, `MobileNav`, `AccountMenu`, `MockBanner`, `ToastProvider` | Session loading, session error with retry, redirecting, logout pending/error |
+| 4 | App layout + account menu | `(protected)/layout.tsx` | Signed-in | ELM-002, UI-001 | `AppShell`, `Sidebar`, `MobileNav`, `AccountMenu`, `MockBanner`, `ConfirmDialog` | Session loading (`Loader`), session error with retry, redirecting, logout confirmation ("Are you sure you want to logout?") with pending/error inside the dialog, "You have been signed out" toast |
 | 5 | Employee dashboard | `/dashboard` (EMPLOYEE) | Employee | ELM-006, UI-001 | `PageHeader`, year `Select`, `BalanceCard` ×2, `LeaveRequestTable` (5 recent), `EmptyState` | L, E (no allowances set / no requests), X, NA |
 | 6 | Apply for leave | `/leave/apply` | Employee | ELM-005, ELM-004, UI-001 | `ApplyLeaveForm`, `Select`, `DateField` ×2, `Textarea`, `WorkingDayPreview`, `Alert` | L (types and balances), V (client and server), S, OK (redirect and toast), X, NA, "no allowance for this type" |
 | 7 | Leave history | `/leave` | Employee | ELM-006, UI-001 | `FilterBar` (year, status), `LeaveRequestTable`, `Pagination` | L, E, F, X, NA |
@@ -132,7 +132,7 @@ src/app/
     login-form.tsx                logic and test IDs unchanged; UI components
     login.module.css              NEW (replaces auth.module.css usage)
   (protected)/
-    layout.tsx                    RequireAuth > ToastProvider > AppShell > children
+    layout.tsx                    RequireAuth > AppShell > children (ToastProvider is in the root layout)
     error.tsx                     NEW: error boundary for the protected area ("use client", props {error, retry})
     dashboard/
       page.tsx                    "/dashboard": role router
@@ -245,7 +245,7 @@ Route rules (checked against `node_modules/next/dist/docs/01-app/03-api-referenc
 | Server-side admin check | `AdminAccessCheck` on `/admin` (the admin dashboard) calls `GET /api/admin/ping/`. It shows nothing while checking or when confirmed (owner request, 2026-09-23: no technical status messages). A 403 renders `AccessDenied`; any other failure shows "We couldn't confirm your administrator access. Please try again." (`data-testid="admin-ping-status"`) with **Try again** |
 | `data-testid` `logout-button`, `header-user`, `header-role` | Rendered once in `AccountMenu`. On desktop it is always visible in the sidebar footer. On mobile (<1024 px) it is inside the menu drawer, so open **Menu** (`data-testid="mobile-menu-button"`) first |
 | `current-user`, `current-role` | Rendered in the `PageHeader` subtitle of both dashboards: "Signed in as `<username>` · `<role badge>`" |
-| Login test IDs and messages (`login-form`, `login-error`, empty-field, 400/403/429/network texts) | `login-form.tsx` logic unchanged. Only markup and styling move to UI components |
+| Login test IDs and messages (`login-form`, empty-field, 400/403/429/network texts) | Form-level login errors are shown as error toasts (announced assertively); empty-field errors stay inline. "Remember me" (`remember-me`) and a "Forgot password?" link (`forgot-password-link`) sit above the button |
 | Session re-check on focus/visibility | `AuthProvider` unchanged |
 | No `/register` (404) | No such route. Root `not-found.tsx` |
 | **Changed:** an admin who signs in now ends up on `/admin` (via `/dashboard`) | `/dashboard` redirects admins. Any E2E check that expects the admin URL to *remain* `/dashboard` must wait for `/admin` instead. The employee landing is unchanged |
@@ -491,7 +491,7 @@ exports. Props are TypeScript shapes.
 | `ButtonLink` | `LinkProps & { variant; size }` | A `next/link` styled as a button, for navigation (for example "Apply for leave") |
 | `IconButton` | `{ label: string; icon: IconName; ... }` | Square 44 px. `label` goes to `aria-label` and a tooltip-free visually-hidden text. Used for Menu, dialog close and toast dismiss |
 | `Icon` | `{ name: IconName; size?: 16 \| 20 \| 24 }` | Inline SVG set (about 20 paths in `icons.tsx`), always `aria-hidden="true" focusable="false"` |
-| `FormField` | `{ id: string; label: string; hint?: string; error?: string; required?: boolean; children: (a11y: { id; "aria-describedby"?; "aria-invalid"?; "aria-required"? }) => ReactNode }` | Renders `<label htmlFor>`, a "(required)" or "Optional" marker as text, the hint (`id-hint`), and `ErrorText` (`id-error`), and wires `aria-describedby` to hint and error. The error text starts with an icon **and** the word "Error:" for screen readers (visually hidden) |
+| `FormField` | `{ id: string; label: string; hint?: string; error?: string; required?: boolean; children: (a11y: { id; "aria-describedby"?; "aria-invalid"?; "aria-required"? }) => ReactNode }` | Renders `<label htmlFor>`, a red `*` for required fields (visual only; the control has `aria-required`) or an "Optional" marker, the hint (`id-hint`), and `ErrorText` (`id-error`), and wires `aria-describedby` to hint and error. The error text starts with an icon **and** the word "Error:" for screen readers (visually hidden) |
 | `ErrorText` | `{ id: string; children }` | `color: var(--color-danger)`, 14 px, warning icon. It is not `role="alert"`. The form-level `Alert` announces errors |
 | `TextField` | `InputHTMLAttributes & { label; hint?; error?; }` | `FormField` + `<input>`. Invalid state has a red border **plus** an icon and the error text |
 | `Select` | `SelectHTMLAttributes & { label; hint?; error?; options: { value: string; label: string; disabled?: boolean }[]; placeholder?: string }` | Native `<select>` with a custom chevron. The placeholder is shown as a disabled empty option |
@@ -504,7 +504,7 @@ exports. Props are TypeScript shapes.
 | Component | Props | Behaviour |
 |---|---|---|
 | `Alert` | `{ variant: "info" \| "success" \| "warning" \| "error"; title?: string; children; action?: ReactNode; live?: "polite" \| "assertive" \| false }` | Icon, title and text on a tinted background with a left border. `error` uses `role="alert"`, and the others use `role="status"` when `live`. Used for form-level errors, 409 conflicts and inline success |
-| `ToastProvider` / `useToast()` | `toast({ variant: "success" \| "error" \| "info"; message: string; durationMs?: 5000 })` | Mounted in the protected layout, so a toast survives `router.push`. Toasts sit in a fixed bottom-right stack (bottom-centre on mobile) inside an `aria-live="polite"` region. They auto-dismiss after 5 s, pause on hover/focus, and have a dismiss `IconButton`. **Never the only feedback** for errors: form errors are always inline too |
+| `ToastProvider` / `useToast()` | `toast({ variant: "success" \| "error" \| "info"; message: string; durationMs?: 5000 })` | Mounted in the root layout, so a toast survives `router.push` and the sign-in/sign-out redirects. Toasts slide into a fixed top-right stack (top-centre on mobile), with a tinted icon and a countdown bar. Messages are announced through visually hidden live regions: errors assertively, others politely. They auto-dismiss after 5 s, pause on hover/focus, and have a dismiss `IconButton`. Field errors are always inline; toasts carry form-level results |
 | `Skeleton` | `{ variant: "text" \| "rect" \| "circle"; width?; height?; lines?: number }` | Grey blocks with a shimmer (off under reduced motion), all `aria-hidden`. The parent container has `aria-busy="true"` and one visually-hidden `role="status"` "Loading …" |
 | `PageSkeleton` / `TableSkeleton` / `CardGridSkeleton` | `{ rows?: number; columns?: number }` | Pre-built skeletons whose sizes match the final layout (no layout shift) |
 | `EmptyState` | `{ icon?: IconName; title: string; description?: ReactNode; action?: ReactNode; tone?: "neutral" \| "info" \| "danger" }` | Centred block in a card. The title is an `h2` or `h3` (a `headingLevel` prop) |
@@ -1210,7 +1210,7 @@ Change:
 ```
 src/app/layout.tsx                    import tokens.css before globals.css
 src/app/globals.css                   base styles on tokens; remove dark scheme; color-scheme: light; focus-visible default; reduced motion
-src/app/(protected)/layout.tsx        RequireAuth > ToastProvider > AppShell
+src/app/(protected)/layout.tsx        RequireAuth > AppShell
 src/components/require-auth.tsx       states use Skeleton/Alert/Button; re-export AccessDenied from states/
 src/app/login/page.tsx                centred Card with brand; same Suspense
 src/app/login/login-form.tsx          TextField/Button/Alert; logic, messages and test IDs unchanged

@@ -1,13 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { ApiError, NETWORK_ERROR_MESSAGE } from "@/lib/api";
-import { safeNextPath } from "@/lib/auth";
-import { Alert } from "@/components/ui/alert";
+import { displayName, safeNextPath } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Loader } from "@/components/ui/loader";
+import { PasswordField } from "@/components/ui/password-field";
 import { TextField } from "@/components/ui/text-field";
+import { useToast } from "@/components/ui/toast";
 import styles from "./login.module.css";
 
 type FieldName = "username" | "password";
@@ -21,7 +25,7 @@ function validate(username: string, password: string): FieldErrors {
 }
 
 function messageFor(error: unknown): string {
-  if (!(error instanceof ApiError)) return "Something went wrong. Try again.";
+  if (!(error instanceof ApiError)) return "Something went wrong. Please try again.";
   if (error.isNetworkError) return NETWORK_ERROR_MESSAGE;
   if (error.status === 400) return error.detail ?? "Check the highlighted fields.";
   if (error.status === 429) return "Too many attempts. Wait a minute and try again.";
@@ -33,14 +37,15 @@ function messageFor(error: unknown): string {
 
 export default function LoginForm() {
   const auth = useAuth();
+  const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = safeNextPath(searchParams.get("next"));
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const usernameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -63,7 +68,6 @@ export default function LoginForm() {
 
     const errors = validate(username, password);
     setFieldErrors(errors);
-    setFormError(null);
     if (errors.username || errors.password) {
       focusFirstInvalid(errors);
       return;
@@ -71,7 +75,8 @@ export default function LoginForm() {
 
     setPending(true);
     try {
-      await auth.login(username.trim(), password);
+      const user = await auth.login(username.trim(), password, rememberMe);
+      toast({ variant: "success", message: `Welcome back, ${displayName(user)}!` });
       // Navigation happens in the effect above; keep the button disabled until then.
     } catch (error) {
       const serverFieldErrors: FieldErrors = {};
@@ -80,7 +85,7 @@ export default function LoginForm() {
         if (error.fieldErrors.password) serverFieldErrors.password = error.fieldErrors.password[0];
       }
       setFieldErrors(serverFieldErrors);
-      setFormError(messageFor(error));
+      toast({ variant: "error", message: messageFor(error) });
       setPassword("");
       setPending(false);
       if (serverFieldErrors.username || serverFieldErrors.password) {
@@ -92,19 +97,11 @@ export default function LoginForm() {
   }
 
   if (auth.status === "loading") {
-    return (
-      <p className={styles.status} role="status">
-        Checking your session…
-      </p>
-    );
+    return <Loader label="Checking your session…" />;
   }
 
   if (authenticated && !pending) {
-    return (
-      <p className={styles.status} role="status">
-        You are already signed in. Redirecting…
-      </p>
-    );
+    return <Loader label="Signing you in…" />;
   }
 
   return (
@@ -115,14 +112,6 @@ export default function LoginForm() {
       aria-busy={pending}
       data-testid="login-form"
     >
-      <div className={styles.alertRegion} aria-live="assertive" aria-atomic="true">
-        {formError && (
-          <Alert variant="error" data-testid="login-error">
-            {formError}
-          </Alert>
-        )}
-      </div>
-
       <TextField
         ref={usernameRef}
         id="username"
@@ -138,18 +127,31 @@ export default function LoginForm() {
         onChange={(event) => setUsername(event.target.value)}
       />
 
-      <TextField
+      <PasswordField
         ref={passwordRef}
         id="password"
         name="password"
         label="Password"
-        type="password"
         autoComplete="current-password"
         required
         error={fieldErrors.password}
         value={password}
         onChange={(event) => setPassword(event.target.value)}
       />
+
+      <div className={styles.options}>
+        <Checkbox
+          id="remember-me"
+          name="remember_me"
+          label="Remember me"
+          checked={rememberMe}
+          onChange={(event) => setRememberMe(event.target.checked)}
+          data-testid="remember-me"
+        />
+        <Link href="/forgot-password" className={styles.link} data-testid="forgot-password-link">
+          Forgot password?
+        </Link>
+      </div>
 
       <Button type="submit" fullWidth loading={pending} loadingText="Signing in…">
         Sign in

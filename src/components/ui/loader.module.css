@@ -1,0 +1,78 @@
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6) 0;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.fullHeight {
+  min-height: 60vh;
+  min-height: 60dvh;
+}
+
+/* A soft track with a brand gradient arc that sweeps round it. */
+.ring {
+  --size: 2.75rem;
+  --thickness: 4px;
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  border-radius: var(--radius-full);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0turn,
+    var(--color-primary-subtle-strong) 0.25turn,
+    var(--color-brand) 0.75turn,
+    var(--color-primary) 1turn
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--thickness)),
+    #000 calc(100% - var(--thickness) + 0.5px)
+  );
+  animation: spin 0.9s linear infinite;
+}
+
+.sm {
+  --size: 1.75rem;
+  --thickness: 3px;
+}
+
+.lg {
+  --size: 3.5rem;
+  --thickness: 5px;
+}
+
+/* Rounded head on the arc. */
+.dot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--thickness);
+  height: var(--thickness);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  transform: translateX(-50%);
+}
+
+.label {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}

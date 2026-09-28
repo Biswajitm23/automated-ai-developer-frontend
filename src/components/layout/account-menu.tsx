@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
-import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/toast";
 import { ApiError, NETWORK_ERROR_MESSAGE } from "@/lib/api";
 import { ROLE_LABELS, displayName } from "@/lib/auth";
 import { initials } from "@/lib/format";
@@ -11,31 +12,44 @@ import styles from "./app-shell.module.css";
 
 /**
  * Always-visible account block (sidebar footer on desktop, inside the menu
- * drawer on mobile): who is signed in, their role, and Log out. The logout
- * behaviour and messages are unchanged from the ELM-002 SiteHeader.
+ * drawer on mobile): who is signed in, their role, and Log out. Log out asks
+ * for confirmation first; a failure is shown inside the dialog, which stays open.
  */
 export function AccountMenu() {
   const auth = useAuth();
+  const { toast } = useToast();
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [pending, setPending] = useState(false);
+  const pendingRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
 
   if (auth.status !== "authenticated") return null;
   const { user } = auth;
   const name = displayName(user);
 
+  function closeConfirm() {
+    if (pendingRef.current) return;
+    setError(null);
+    setConfirmOpen(false);
+  }
+
   async function handleLogout() {
+    if (pendingRef.current) return; // double click / double Enter
+    pendingRef.current = true;
     setPending(true);
     setError(null);
     try {
       await auth.logout();
+      toast({ variant: "success", message: "You have been signed out." });
     } catch (err) {
       if (err instanceof ApiError && err.isForbidden) {
         setError("Could not sign out. Reload the page and try again.");
       } else if (err instanceof ApiError && !err.isNetworkError) {
-        setError(`Could not sign out (error ${err.status}). Try again.`);
+        setError("Could not sign out. Please try again.");
       } else {
         setError(NETWORK_ERROR_MESSAGE);
       }
+      pendingRef.current = false;
       setPending(false);
     }
   }
@@ -57,24 +71,30 @@ export function AccountMenu() {
           </span>
         </div>
       </div>
-      <div aria-live="assertive">
-        {error && (
-          <Alert variant="error" data-testid="logout-error">
-            {error}
-          </Alert>
-        )}
-      </div>
       <Button
         variant="secondary"
         iconStart="log-out"
         fullWidth
-        onClick={() => void handleLogout()}
-        loading={pending}
-        loadingText="Signing out…"
+        onClick={() => setConfirmOpen(true)}
         data-testid="logout-button"
       >
         Log out
       </Button>
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={closeConfirm}
+        onConfirm={handleLogout}
+        title="Log out"
+        confirmLabel="Yes, log out"
+        cancelLabel="Cancel"
+        pendingLabel="Signing out…"
+        tone="danger"
+        pending={pending}
+        error={error}
+        testId="logout-dialog"
+      >
+        <p>Are you sure you want to logout?</p>
+      </ConfirmDialog>
     </section>
   );
 }

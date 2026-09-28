@@ -26,7 +26,7 @@ type AuthState =
   | { status: "error"; user: null; message: string };
 
 export type AuthContextValue = AuthState & {
-  login: (username: string, password: string) => Promise<User>;
+  login: (username: string, password: string, rememberMe?: boolean) => Promise<User>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
 };
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       const message =
         error instanceof ApiError && !error.isNetworkError
-          ? `Could not check your session (error ${error.status}).`
+          ? "Something went wrong while checking your session. Please try again."
           : NETWORK_ERROR_MESSAGE;
       setState((current) =>
         !silent || current.status === "loading" || current.status === "error"
@@ -124,8 +124,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [check]);
 
-  const login = useCallback(async (username: string, password: string) => {
-    const user = await loginRequest(username, password);
+  const login = useCallback(async (username: string, password: string, rememberMe = false) => {
+    const user = await loginRequest(username, password, rememberMe);
     requestId.current++;
     setState({ status: "authenticated", user });
     return user;
