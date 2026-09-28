@@ -197,7 +197,7 @@ function EditEmployee({ id }: { id: string }) {
       )}
 
       <div className={styles.detailGrid}>
-        <Card title="Details" padding="lg">
+        <Card>
           <EmployeeForm
             key={`${current.id}-${formVersion}`}
             mode="edit"

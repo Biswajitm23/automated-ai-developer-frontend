@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: var(--space-4);
   min-width: 0;
-  padding: var(--space-5);
+  padding: var(--space-6);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   background: var(--color-surface);
@@ -31,6 +31,7 @@
 .title {
   font-size: var(--text-lg);
   line-height: var(--leading-lg);
+  font-weight: var(--font-semibold);
 }
 
 .actions {
@@ -121,7 +122,7 @@
 
 .dlRow dt {
   font-size: var(--text-sm);
-  line-height: var(--leading-sm);
+  line-height: var(--leading-base);
   color: var(--color-text-muted);
 }
 

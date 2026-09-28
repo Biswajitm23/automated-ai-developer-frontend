@@ -6,9 +6,9 @@ import "@/styles/tokens.css";
 import "./globals.css";
 
 // Bitpastel brand fonts, self-hosted by next/font (no requests to Google at runtime).
+// Variable font: every weight the tokens use (400–700) is real, none synthesised.
 const roboto = Roboto({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
   variable: "--font-roboto",
 });
 
