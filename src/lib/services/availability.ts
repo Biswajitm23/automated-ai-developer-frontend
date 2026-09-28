@@ -24,7 +24,7 @@ export const ENDPOINTS: Record<EndpointGroup, EndpointInfo> = {
   adminAllowances: { available: true, card: "ELM-003", feature: "Allowance management" },
   myBalances: { available: true, card: "ELM-005/006", feature: "Leave balances" },
   myRequests: { available: true, card: "ELM-005/006", feature: "Leave requests" },
-  cancelRequest: { available: false, card: "ELM-008", feature: "Cancelling requests" },
+  cancelRequest: { available: true, card: "ELM-008", feature: "Cancelling requests" },
   adminDecisions: { available: true, card: "ELM-007", feature: "Approvals" },
   // Review detail since ELM-007; the list endpoint arrives with ELM-009 (until then its
   // unrouted 404 is shown as "not available" by services/http.ts).

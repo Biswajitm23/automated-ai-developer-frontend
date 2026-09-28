@@ -185,12 +185,6 @@ function ReviewRequest({ id }: { id: string }) {
         <LoadError error={state.error} onRetry={state.reload} what="the latest version of this request" />
       )}
 
-      {isPending && !DECISIONS_AVAILABLE && (
-        <Alert variant="info" data-testid="decisions-not-available">
-          {ENDPOINTS.adminDecisions.feature} isn&apos;t available yet ({ENDPOINTS.adminDecisions.card}).
-        </Alert>
-      )}
-
       <div className={styles.detailGrid}>
         <div className={styles.stack}>
           <div ref={summaryRef} tabIndex={-1} className={styles.noticeTarget} aria-busy={busy || undefined}>
