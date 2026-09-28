@@ -16,6 +16,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { SearchField } from "@/components/ui/text-field";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { listEmployees } from "@/lib/services/admin-employees";
+import { initials } from "@/lib/format";
 import { isNotFound } from "@/lib/services/errors";
 import { DEFAULT_PAGE_SIZE, type Employee, type EmployeeStatusFilter } from "@/lib/services/types";
 import { useAsync } from "@/lib/use-async";
@@ -46,35 +47,38 @@ const COLUMNS: TableColumn<Employee>[] = [
     header: "Name",
     primary: true,
     cell: (employee) => (
-      <span className={styles.wrap}>
-        <Link href={`/admin/employees/${employee.id}`} data-testid="employee-link">
-          {employee.full_name}
-          <VisuallyHidden>, edit employee</VisuallyHidden>
-        </Link>
+      <span className={styles.person}>
+        <span className={styles.avatar} aria-hidden="true">
+          {initials(employee.full_name)}
+        </span>
+        <span className={styles.personText}>
+          <Link href={`/admin/employees/${employee.id}`} className={styles.personName} data-testid="employee-link">
+            {employee.full_name}
+            <VisuallyHidden>, edit employee</VisuallyHidden>
+          </Link>
+          <span className={styles.personMeta}>
+            <VisuallyHidden>Username: </VisuallyHidden>
+            {employee.username}
+          </span>
+        </span>
       </span>
     ),
   },
   {
     key: "email",
     header: "Email",
-    cell: (employee) => <span className={styles.email}>{employee.email}</span>,
+    cell: (employee) => <span className={styles.email}>{employee.email || "—"}</span>,
   },
   {
     key: "department",
     header: "Department",
-    cell: (employee) => <span className={styles.wrap}>{employee.department}</span>,
+    cell: (employee) => <span className={styles.wrap}>{employee.department || "—"}</span>,
   },
   {
     key: "employee_code",
     header: "Employee ID",
     hideOnMobile: true,
     cell: (employee) => <span className={styles.wrap}>{employee.employee_code ?? "—"}</span>,
-  },
-  {
-    key: "username",
-    header: "Username",
-    hideOnMobile: true,
-    cell: (employee) => <span className={styles.wrap}>{employee.username}</span>,
   },
   {
     key: "status",
@@ -126,7 +130,7 @@ export default function EmployeeListView() {
       >
         <SearchField
           label="Search"
-          hint="Name, email, username, department or Employee ID."
+          placeholder="Name, email, username, department or ID"
           value={q}
           onSearch={(value) => setUrl({ q: value })}
           data-testid="employee-search"
