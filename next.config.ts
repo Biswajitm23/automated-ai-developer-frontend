@@ -17,7 +17,23 @@ const nextConfig = (phase: string): NextConfig => {
         "development-only and is not included. Use `npm run dev` to work with mock data.\n",
     );
   }
-  return {};
+  // Deployed demo: the browser calls /api on the website's own address and Next.js
+  // forwards it to Django, so the session cookie stays first-party. (Calling a
+  // backend on another hosting domain directly would make it a third-party cookie,
+  // which Safari and private windows block.) Set BACKEND_ORIGIN at build time,
+  // with NEXT_PUBLIC_API_BASE_URL empty.
+  const backendOrigin = process.env.BACKEND_ORIGIN?.replace(/\/+$/, "");
+  return {
+    // Django URLs all end with "/". Next.js drops that slash before forwarding (and
+    // would otherwise redirect to the slash-less form), so skip the redirect and add
+    // the slash back; the query string is forwarded unchanged.
+    skipTrailingSlashRedirect: true,
+    async rewrites() {
+      return backendOrigin
+        ? [{ source: "/api/:path+", destination: `${backendOrigin}/api/:path+/` }]
+        : [];
+    },
+  };
 };
 
 export default nextConfig;

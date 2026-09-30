@@ -1,0 +1,23 @@
+# Render Blueprint for the ELM-011 demo website (free plan).
+# The browser calls /api on this site; Next.js forwards it to the Django backend
+# on Railway (see next.config.ts), so the sign-in cookie stays first-party.
+services:
+  - type: web
+    name: elm-frontend
+    runtime: node
+    plan: free
+    branch: feature/ELM-011-demo-deployment
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      # Backend address, e.g. https://<service>.up.railway.app (set in the dashboard).
+      - key: BACKEND_ORIGIN
+        sync: false
+      # "/" means "same site": API calls go to this website, which forwards them.
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: /
+      - key: NEXT_PUBLIC_USE_MOCK_API
+        value: "false"
