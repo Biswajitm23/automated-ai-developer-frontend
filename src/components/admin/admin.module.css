@@ -1,0 +1,129 @@
+/* Shared styles for the admin components (tables, counts, balance impact). */
+
+.personCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.subtle {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  font-weight: var(--font-regular);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* StatusCounts: toggle buttons that choose the status filter. */
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.countButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-height);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--easing-standard);
+}
+
+.countButton:hover {
+  background: var(--color-surface-muted);
+}
+
+.countButton[aria-pressed="true"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary-text);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.countButton:disabled {
+  cursor: progress;
+}
+
+.countValue {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-bold);
+}
+
+/* BalanceImpact */
+.impactTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.impactTable th,
+.impactTable td {
+  padding: var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  text-align: end;
+  vertical-align: top;
+}
+
+.impactTable th:first-child {
+  text-align: start;
+}
+
+.impactTable thead th {
+  color: var(--color-text-muted);
+  font-weight: var(--font-semibold);
+}
+
+.impactTable tbody th {
+  font-weight: var(--font-medium);
+}
+
+.impactTable tbody tr:last-child th,
+.impactTable tbody tr:last-child td {
+  border-bottom: 0;
+  font-weight: var(--font-bold);
+}
+
+.impactWrap {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.impactList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.impactList li {
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 480px) {
+  .impactTable th,
+  .impactTable td {
+    padding: var(--space-2) var(--space-3);
+  }
+}

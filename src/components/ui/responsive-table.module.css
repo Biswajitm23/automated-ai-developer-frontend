@@ -1,0 +1,161 @@
+/* Below 768 px each row is a card; at 768 px and up it is a real table. */
+
+.wrapper {
+  /* Safety net only: the layout itself must fit. */
+  overflow-x: auto;
+  min-width: 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.caption {
+  text-align: start;
+  padding-bottom: var(--space-3);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-base);
+}
+
+.caption:focus-visible {
+  outline-offset: 4px;
+}
+
+.table thead {
+  /* Headers are shown through data-label in the card layout. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.table tbody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.table tbody tr {
+  display: block;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.table td {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, 40%) 1fr;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+  overflow-wrap: anywhere;
+}
+
+.table td::before {
+  content: attr(data-label);
+  color: var(--color-text-muted);
+  font-weight: var(--font-medium);
+}
+
+.table td.primary {
+  display: block;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-base);
+  line-height: var(--leading-base);
+  font-weight: var(--font-semibold);
+}
+
+.table td.primary::before {
+  content: none;
+}
+
+.table td.hideOnMobile {
+  display: none;
+}
+
+.end {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 768px) {
+  .wrapper {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .caption {
+    padding: var(--space-4) var(--space-4) var(--space-2);
+  }
+
+  .table thead {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    display: table-header-group;
+  }
+
+  .table tbody {
+    display: table-row-group;
+  }
+
+  .table tbody tr {
+    display: table-row;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .table tbody tr:hover {
+    background: var(--color-surface-muted);
+  }
+
+  .table th,
+  .table td,
+  .table td.primary,
+  .table td.hideOnMobile {
+    display: table-cell;
+    padding: var(--space-3) var(--space-4);
+    margin: 0;
+    border-bottom: 1px solid var(--color-border);
+    text-align: start;
+    vertical-align: top;
+    font-size: var(--text-sm);
+    line-height: var(--leading-sm);
+  }
+
+  .table td.primary {
+    font-weight: var(--font-medium);
+  }
+
+  .table td::before {
+    content: none;
+  }
+
+  .table th {
+    background: var(--color-surface-muted);
+    color: var(--color-text-muted);
+    font-weight: var(--font-semibold);
+    white-space: nowrap;
+  }
+
+  .table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .table th.end,
+  .table td.end {
+    text-align: end;
+  }
+}

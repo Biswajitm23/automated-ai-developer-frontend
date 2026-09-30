@@ -1,0 +1,146 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.paddingLg {
+  padding: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .paddingLg {
+    padding: var(--space-8);
+  }
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.title {
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* StatCard */
+/* Pastel fill by tone, like the cards on bitpastel.com. The label and value
+   still say what the number means; the colour is only a supporting cue. */
+.stat {
+  position: relative;
+  gap: var(--space-1);
+  border-color: transparent;
+  background: var(--color-pastel-sky);
+  box-shadow: none;
+}
+
+.statLink {
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow var(--duration-fast) var(--easing-standard);
+}
+
+.statLink:hover {
+  color: inherit;
+  box-shadow: var(--shadow-md);
+}
+
+.statLabel {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-muted);
+}
+
+.statValue {
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-3xl);
+  font-weight: var(--font-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.statUnit {
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-text-muted);
+}
+
+.statDescription {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
+}
+
+.tone-pending {
+  background: var(--color-pastel-yellow);
+}
+
+.tone-approved,
+.tone-active {
+  background: var(--color-pastel-mint);
+}
+
+.tone-rejected {
+  background: var(--color-pastel-coral);
+}
+
+.tone-cancelled,
+.tone-inactive {
+  background: var(--color-pastel-grey);
+}
+
+/* DescriptionList */
+.dl {
+  display: grid;
+  gap: var(--space-3) var(--space-6);
+  grid-template-columns: 1fr;
+}
+
+.dlRow {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.dlRow dt {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
+}
+
+.dlRow dd {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 480px) {
+  .dlRow {
+    grid-template-columns: minmax(8rem, 12rem) 1fr;
+    gap: var(--space-4);
+  }
+
+  .dlTwo .dlRow {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  .dlTwo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

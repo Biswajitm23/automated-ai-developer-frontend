@@ -15,7 +15,7 @@ export const API_BASE_URL = (
 ).replace(/\/+$/, "");
 
 export const NETWORK_ERROR_MESSAGE =
-  "Could not reach the server. Check your connection and that the backend is running, then try again.";
+  "Could not connect. Check your internet connection and try again.";
 
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
@@ -124,7 +124,7 @@ async function fetchCsrfToken(signal?: AbortSignal): Promise<string> {
   const token =
     body && typeof body === "object" ? (body as { csrfToken?: unknown }).csrfToken : undefined;
   if (typeof token !== "string" || token === "") {
-    throw new ApiError(response.status, "The server did not return a security token.");
+    throw new ApiError(response.status, "Something went wrong. Reload the page and try again.");
   }
   return token;
 }

@@ -28,12 +28,47 @@ export function fetchMe(signal?: AbortSignal): Promise<User> {
   return apiFetch<User>("/api/auth/me/", { signal, skipUnauthorizedHandler: true });
 }
 
-export async function loginRequest(username: string, password: string): Promise<User> {
+export async function loginRequest(
+  username: string,
+  password: string,
+  rememberMe = false,
+): Promise<User> {
   const data = await apiFetch<{ user: User }>("/api/auth/login/", {
     method: "POST",
-    body: { username, password },
+    body: { username, password, remember_me: rememberMe },
   });
   return data.user;
+}
+
+/** Forgot password, step 1: email a one-time code. Same answer for unknown emails. */
+export async function requestPasswordResetCode(email: string): Promise<void> {
+  await apiFetch<unknown>("/api/auth/password-reset/request/", {
+    method: "POST",
+    body: { email },
+  });
+}
+
+/** Step 2: check the code without using it up. Throws ApiError 400 `code` if wrong or expired. */
+export async function verifyPasswordResetCode(email: string, code: string): Promise<void> {
+  await apiFetch<unknown>("/api/auth/password-reset/verify/", {
+    method: "POST",
+    body: { email, code },
+  });
+}
+
+/**
+ * Step 3: set the new password. Throws ApiError 400 with `code` (wrong or
+ * expired) or `new_password` (too weak) field errors.
+ */
+export async function confirmPasswordReset(
+  email: string,
+  code: string,
+  newPassword: string,
+): Promise<void> {
+  await apiFetch<unknown>("/api/auth/password-reset/confirm/", {
+    method: "POST",
+    body: { email, code, new_password: newPassword },
+  });
 }
 
 export async function logoutRequest(): Promise<void> {
