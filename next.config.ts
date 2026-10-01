@@ -28,6 +28,8 @@ const nextConfig = (phase: string): NextConfig => {
     // would otherwise redirect to the slash-less form), so skip the redirect and add
     // the slash back; the query string is forwarded unchanged.
     skipTrailingSlashRedirect: true,
+    // The default bottom-left badge would cover the collapsed sidebar's Log out button.
+    devIndicators: { position: "bottom-right" },
     async rewrites() {
       return backendOrigin
         ? [{ source: "/api/:path+", destination: `${backendOrigin}/api/:path+/` }]
