@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useRef, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
@@ -16,9 +16,8 @@ import styles from "./app-shell.module.css";
  * drawer on mobile): who is signed in, their role, and Log out. Log out asks
  * for confirmation first; a failure is shown inside the dialog, which stays open.
  * `compact` (collapsed sidebar) shows only the initials and a Log out icon.
- * `toggle` (the desktop sidebar's expand/collapse button) sits above the user.
  */
-export function AccountMenu({ compact = false, toggle }: { compact?: boolean; toggle?: ReactNode }) {
+export function AccountMenu({ compact = false }: { compact?: boolean }) {
   const auth = useAuth();
   const { toast } = useToast();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -59,7 +58,6 @@ export function AccountMenu({ compact = false, toggle }: { compact?: boolean; to
 
   return (
     <section className={styles.account} aria-label="Account" data-compact={compact || undefined}>
-      {toggle}
       <div className={styles.accountUser}>
         <span
           className={styles.avatar}

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/icons";
-import { IconButton } from "@/components/ui/icon-button";
 import type { Role } from "@/lib/auth";
 import { AccountMenu } from "./account-menu";
 import { BrandLogo } from "./brand-logo";
@@ -43,23 +42,23 @@ export function Sidebar({ role, onNavigate, collapsed = false, onToggleCollapsed
             </li>
           ))}
         </ul>
+        {onToggleCollapsed && (
+          <button
+            type="button"
+            className={`${styles.navLink} ${styles.collapseButton}`}
+            aria-expanded={!collapsed}
+            title={collapsed ? "Expand menu" : undefined}
+            onClick={onToggleCollapsed}
+            data-testid="sidebar-toggle"
+          >
+            <Icon name={collapsed ? "chevron-right" : "chevron-left"} size={20} />
+            <span className={collapsed ? "visually-hidden" : undefined}>
+              {collapsed ? "Expand menu" : "Collapse menu"}
+            </span>
+          </button>
+        )}
       </nav>
-      <AccountMenu
-        compact={collapsed}
-        toggle={
-          onToggleCollapsed && (
-            <IconButton
-              label={collapsed ? "Expand menu" : "Collapse menu"}
-              icon={collapsed ? "chevron-right" : "chevron-left"}
-              title={collapsed ? "Expand menu" : "Collapse menu"}
-              aria-expanded={!collapsed}
-              onClick={onToggleCollapsed}
-              className={styles.collapseButton}
-              data-testid="sidebar-toggle"
-            />
-          )
-        }
-      />
+      <AccountMenu compact={collapsed} />
     </div>
   );
 }

@@ -87,14 +87,15 @@
   padding-right: var(--space-3);
 }
 
+/* Expand/collapse button: a menu item under the last link. */
 .collapseButton {
-  align-self: flex-start;
-  margin-left: calc(-1 * var(--space-1));
-}
-
-.sidebarInner[data-collapsed] .collapseButton {
-  align-self: center;
-  margin-left: 0;
+  width: 100%;
+  margin-top: var(--space-1);
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .sidebarInner[data-collapsed] .navLink {
