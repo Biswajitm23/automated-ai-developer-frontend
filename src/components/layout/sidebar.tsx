@@ -25,24 +25,11 @@ export function Sidebar({ role, onNavigate, collapsed = false, onToggleCollapsed
   const pathname = usePathname();
   return (
     <div className={styles.sidebarInner} data-collapsed={collapsed || undefined}>
-      <div className={styles.sidebarHeader}>
-        {!collapsed && (
-          <Link href="/dashboard" className={styles.brand} onClick={onNavigate}>
-            <BrandLogo layout="stacked" />
-          </Link>
-        )}
-        {onToggleCollapsed && (
-          <IconButton
-            label={collapsed ? "Expand menu" : "Collapse menu"}
-            icon={collapsed ? "chevron-right" : "chevron-left"}
-            title={collapsed ? "Expand menu" : "Collapse menu"}
-            aria-expanded={!collapsed}
-            onClick={onToggleCollapsed}
-            className={styles.collapseButton}
-            data-testid="sidebar-toggle"
-          />
-        )}
-      </div>
+      {!collapsed && (
+        <Link href="/dashboard" className={styles.brand} onClick={onNavigate}>
+          <BrandLogo layout="stacked" />
+        </Link>
+      )}
       <nav aria-label="Main" className={styles.nav}>
         <ul role="list" className={styles.navList}>
           {NAV_ITEMS[role].map((item) => (
@@ -57,7 +44,22 @@ export function Sidebar({ role, onNavigate, collapsed = false, onToggleCollapsed
           ))}
         </ul>
       </nav>
-      <AccountMenu compact={collapsed} />
+      <AccountMenu
+        compact={collapsed}
+        toggle={
+          onToggleCollapsed && (
+            <IconButton
+              label={collapsed ? "Expand menu" : "Collapse menu"}
+              icon={collapsed ? "chevron-right" : "chevron-left"}
+              title={collapsed ? "Expand menu" : "Collapse menu"}
+              aria-expanded={!collapsed}
+              onClick={onToggleCollapsed}
+              className={styles.collapseButton}
+              data-testid="sidebar-toggle"
+            />
+          )
+        }
+      />
     </div>
   );
 }
