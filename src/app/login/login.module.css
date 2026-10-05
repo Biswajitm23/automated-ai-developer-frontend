@@ -1,3 +1,8 @@
+/* Note under the "Sign in" heading, in the owner's chosen colour. */
+.note {
+  color: #55a9a0;
+}
+
 .form {
   display: flex;
   flex-direction: column;
