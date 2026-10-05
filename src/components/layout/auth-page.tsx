@@ -8,12 +8,14 @@ export type AuthPageProps = {
   children: ReactNode;
   /** Shown under the card, e.g. a "Back to sign in" link. */
   footer?: ReactNode;
+  /** Extra class on the page, e.g. to recolour one page. */
+  className?: string;
 };
 
 /** Centred brand + card layout shared by the sign-in and forgot-password pages. */
-export function AuthPage({ title, description, children, footer }: AuthPageProps) {
+export function AuthPage({ title, description, children, footer, className }: AuthPageProps) {
   return (
-    <main className={styles.page}>
+    <main className={className ? `${styles.page} ${className}` : styles.page}>
       <div className={styles.container}>
         <div className={styles.brand}>
           <BrandLogo product="Employee Leave Management" />

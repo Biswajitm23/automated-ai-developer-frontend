@@ -1,6 +1,10 @@
-/* Note under the "Sign in" heading, in the owner's chosen colour. */
-.note {
-  color: #55a9a0;
+/* The sign-in page uses the owner's green instead of the brand greens. */
+.theme {
+  --color-brand: var(--color-signin-accent);
+  --color-primary: var(--color-signin-primary);
+  --color-primary-hover: var(--color-signin-primary-hover);
+  --color-link: var(--color-signin-accent);
+  --color-link-hover: var(--color-signin-primary);
 }
 
 .form {
@@ -17,6 +21,8 @@
   justify-content: space-between;
   gap: var(--space-1) var(--space-4);
   margin-top: calc(-1 * var(--space-2));
+  /* The ticked box takes the owner's green too; only the button is darker. */
+  --color-primary: var(--color-signin-accent);
 }
 
 .link {

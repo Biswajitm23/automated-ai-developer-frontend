@@ -13,11 +13,8 @@ export default function LoginPage() {
   return (
     <AuthPage
       title="Sign in"
-      description={
-        <span className={styles.note}>
-          Please use the account your administrator gave you. There is no self-registration.
-        </span>
-      }
+      description="Please use the account your administrator gave you. There is no self-registration."
+      className={styles.theme}
     >
       <Suspense fallback={<Loader label="Loading…" />}>
         <LoginForm />

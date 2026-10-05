@@ -40,6 +40,14 @@
   --color-link-hover: #005a3e;
   --color-focus: #22577a;
 
+  /*
+   * Sign-in page green, chosen by the owner (ELM-016). #55a9a0 is 2.8:1 on
+   * white, so the filled button uses darker shades of it for white text.
+   */
+  --color-signin-accent: #55a9a0;
+  --color-signin-primary: #3f7e77;
+  --color-signin-primary-hover: #356964;
+
   /* Pastel surfaces (StatCard tones, icon circles) */
   --color-pastel-mint: #dcf6eb;
   --color-pastel-yellow: #fcf4d7;
