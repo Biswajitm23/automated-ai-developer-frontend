@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/icons";
 import type { Role } from "@/lib/auth";
 import { AccountMenu } from "./account-menu";
-import { BrandLogo } from "./brand-logo";
+import { BrandLogo, BrandMark } from "./brand-logo";
 import { NAV_ITEMS, type NavItem } from "./nav-config";
 import styles from "./app-shell.module.css";
 
@@ -24,11 +24,14 @@ export function Sidebar({ role, onNavigate, collapsed = false, onToggleCollapsed
   const pathname = usePathname();
   return (
     <div className={styles.sidebarInner} data-collapsed={collapsed || undefined}>
-      {!collapsed && (
-        <Link href="/dashboard" className={styles.brand} onClick={onNavigate}>
-          <BrandLogo layout="stacked" />
-        </Link>
-      )}
+      <Link
+        href="/dashboard"
+        className={styles.brand}
+        onClick={onNavigate}
+        title={collapsed ? "Bitpastel Leave Management" : undefined}
+      >
+        {collapsed ? <BrandMark /> : <BrandLogo layout="stacked" />}
+      </Link>
       <nav aria-label="Main" className={styles.nav}>
         <ul role="list" className={styles.navList}>
           {NAV_ITEMS[role].map((item) => (

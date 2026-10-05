@@ -32,3 +32,18 @@ export function BrandLogo({
     </span>
   );
 }
+
+/** Bitpastel "b" mark, shown in place of the full logo in the collapsed sidebar. */
+export function BrandMark({ product = "Leave Management" }: { product?: string }) {
+  return (
+    <Image
+      src="/brand/bitpastel-mark.svg"
+      alt={`Bitpastel ${product}`}
+      width={19}
+      height={28}
+      className={styles.logo}
+      unoptimized
+      priority
+    />
+  );
+}
