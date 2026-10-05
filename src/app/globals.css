@@ -57,7 +57,7 @@ ol[role="list"] {
 
 a {
   color: var(--color-link);
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
 
 a:hover {

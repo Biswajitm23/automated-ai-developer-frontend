@@ -87,11 +87,6 @@
   color: var(--color-primary-text);
 }
 
-.quickLink:hover .quickLabel {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
 .quickDescription {
   font-size: var(--text-sm);
   line-height: var(--leading-sm);
@@ -231,7 +226,6 @@
 
 .personName:hover {
   color: var(--color-link);
-  text-decoration: underline;
 }
 
 .personMeta {

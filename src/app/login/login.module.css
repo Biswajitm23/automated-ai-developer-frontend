@@ -26,5 +26,4 @@
 
 .link:hover {
   color: var(--color-link-hover);
-  text-decoration: underline;
 }
