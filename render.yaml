@@ -6,7 +6,7 @@ services:
     name: elm-frontend
     runtime: node
     plan: free
-    branch: feature/ELM-011-demo-deployment
+    branch: main
     buildCommand: npm ci && npm run build
     startCommand: npm run start
     healthCheckPath: /login
