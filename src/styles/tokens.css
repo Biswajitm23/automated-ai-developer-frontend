@@ -160,6 +160,7 @@
   /* Motion */
   --duration-fast: 120ms;
   --duration-base: 200ms;
+  --duration-slow: 300ms;
   --easing-standard: cubic-bezier(0.2, 0, 0, 1);
 
   /* z-index scale */

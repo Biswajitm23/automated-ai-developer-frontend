@@ -84,7 +84,12 @@ export default function AdminDashboard() {
           ) : undefined
         }
         actions={
-          <ButtonLink href="/admin/requests?status=PENDING" iconStart="inbox" data-testid="review-pending-link">
+          <ButtonLink
+            href="/admin/requests?status=PENDING"
+            iconStart="inbox"
+            className={styles.revealButton}
+            data-testid="review-pending-link"
+          >
             Review pending requests
           </ButtonLink>
         }

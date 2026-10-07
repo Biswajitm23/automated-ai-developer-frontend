@@ -235,3 +235,43 @@
   font-weight: var(--font-regular);
   overflow-wrap: anywhere;
 }
+
+/*
+ * "Review pending requests" (ELM-012): icon only until pointed at or focused
+ * with the keyboard, then the label slides out. The label stays in the page
+ * (only clipped), so screen readers still read it. Touch screens cannot
+ * hover, so they keep the full label.
+ */
+@media (hover: hover) {
+  .revealButton {
+    gap: 0;
+    padding-inline: calc((var(--control-height) - 20px) / 2 - 1px);
+    transition:
+      gap var(--duration-slow) var(--easing-standard),
+      padding var(--duration-slow) var(--easing-standard),
+      background-color var(--duration-fast) var(--easing-standard),
+      border-color var(--duration-fast) var(--easing-standard);
+  }
+
+  .revealButton > span {
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    transition:
+      max-width var(--duration-slow) var(--easing-standard),
+      opacity var(--duration-slow) var(--easing-standard);
+  }
+
+  .revealButton:hover,
+  .revealButton:focus-visible {
+    gap: var(--space-2);
+    padding-inline: var(--space-4);
+  }
+
+  .revealButton:hover > span,
+  .revealButton:focus-visible > span {
+    max-width: 11rem;
+    opacity: 1;
+  }
+}
