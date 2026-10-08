@@ -30,16 +30,6 @@ const nextConfig = (phase: string): NextConfig => {
     skipTrailingSlashRedirect: true,
     // The default bottom-left badge would cover the collapsed sidebar's Log out button.
     devIndicators: { position: "bottom-right" },
-    async headers() {
-      // Tell browsers to use HTTPS only (one year). Browsers ignore this header
-      // on plain-HTTP local development, so it is safe to send everywhere.
-      return [
-        {
-          source: "/:path*",
-          headers: [{ key: "Strict-Transport-Security", value: "max-age=31536000" }],
-        },
-      ];
-    },
     async rewrites() {
       return backendOrigin
         ? [{ source: "/api/:path+", destination: `${backendOrigin}/api/:path+/` }]

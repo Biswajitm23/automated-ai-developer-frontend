@@ -12,7 +12,7 @@ import {
   type ReactNode,
 } from "react";
 import { ApiError, NETWORK_ERROR_MESSAGE, setUnauthorizedHandler } from "@/lib/api";
-import { fetchSession, loginRequest, logoutRequest, type User } from "@/lib/auth";
+import { fetchMe, loginRequest, logoutRequest, type User } from "@/lib/auth";
 
 export type AuthStatus = "loading" | "authenticated" | "unauthenticated" | "error";
 
@@ -71,13 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState({ status: "loading", user: null });
     }
     try {
-      const user = await fetchSession();
-      if (id !== requestId.current) return;
-      if (user) {
-        setState({ status: "authenticated", user });
-      } else {
-        setState((current) => (current.status === "unauthenticated" ? current : SIGNED_OUT));
-      }
+      const user = await fetchMe();
+      if (id === requestId.current) setState({ status: "authenticated", user });
     } catch (error) {
       if (id !== requestId.current) return;
       if (error instanceof ApiError && error.isUnauthorized) {
