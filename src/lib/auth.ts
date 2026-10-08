@@ -23,9 +23,18 @@ export function displayName(user: User): string {
   return fullName || user.username;
 }
 
-export function fetchMe(signal?: AbortSignal): Promise<User> {
-  // The AuthProvider handles 401 itself, guarded against stale responses.
-  return apiFetch<User>("/api/auth/me/", { signal, skipUnauthorizedHandler: true });
+/**
+ * The signed-in user, or null when nobody is signed in. The session endpoint
+ * answers 200 either way, so a signed-out visit logs no failed request in the
+ * browser console. The AuthProvider still handles a 401 itself, guarded
+ * against stale responses.
+ */
+export async function fetchSession(signal?: AbortSignal): Promise<User | null> {
+  const data = await apiFetch<{ user: User | null }>("/api/auth/session/", {
+    signal,
+    skipUnauthorizedHandler: true,
+  });
+  return data.user;
 }
 
 export async function loginRequest(
