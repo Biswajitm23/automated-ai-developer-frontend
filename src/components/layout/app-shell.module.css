@@ -87,6 +87,12 @@
   padding-right: var(--space-3);
 }
 
+/* Expanded: lay the content out at the full width from the first frame of the
+   opening animation, so labels never wrap inside the still-narrow sidebar. */
+.sidebar .sidebarInner:not([data-collapsed]) {
+  min-width: calc(var(--sidebar-width) - 1px);
+}
+
 /* Expand/collapse button: a menu item under the last link. */
 .collapseButton {
   width: 100%;
@@ -227,6 +233,14 @@
   line-height: var(--leading-sm);
   color: var(--color-text-muted);
   overflow-wrap: anywhere;
+}
+
+/* One line; the full address is in the title. */
+.accountEmail {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .roleBadge {

@@ -71,7 +71,11 @@ export function AccountMenu({ compact = false }: { compact?: boolean }) {
             {name}
           </span>
           {name !== user.username && <span className={styles.accountMeta}>{user.username}</span>}
-          {user.email && <span className={styles.accountMeta}>{user.email}</span>}
+          {user.email && (
+            <span className={`${styles.accountMeta} ${styles.accountEmail}`} title={user.email}>
+              {user.email}
+            </span>
+          )}
           <span className={styles.roleBadge} data-testid="header-role">
             {ROLE_LABELS[user.role]}
           </span>
